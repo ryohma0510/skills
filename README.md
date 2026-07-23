@@ -16,7 +16,7 @@ npx skills add ryohma0510/skills
 
 ```
 /plugin marketplace add ryohma0510/skills
-/plugin install skills@ryohma0510-skills
+/plugin install productivity@ryohma0510-skills
 ```
 
 ## ディレクトリ構成

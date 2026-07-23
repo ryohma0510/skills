@@ -10,7 +10,7 @@
   },
   "plugins": [
     {
-      "name": "skills",
+      "name": "productivity",
       "description": "My personal Claude Skills collection",
       "source": "./",
       "strict": false,
