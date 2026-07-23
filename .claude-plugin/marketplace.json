@@ -14,7 +14,9 @@
       "description": "My personal Claude Skills collection",
       "source": "./",
       "strict": false,
-      "skills": []
+      "skills": [
+        "./skills/copy-skill"
+      ]
     }
   ]
 }
