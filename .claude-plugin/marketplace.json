@@ -1,0 +1,20 @@
+{
+  "name": "ryohma0510-skills",
+  "owner": {
+    "name": "ryohma0510",
+    "email": "ryoma.k.0224@gmail.com"
+  },
+  "metadata": {
+    "description": "My personal Claude Skills collection",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "skills",
+      "description": "My personal Claude Skills collection",
+      "source": "./",
+      "strict": false,
+      "skills": []
+    }
+  ]
+}
