@@ -17,6 +17,7 @@
       "skills": [
         "./skills/copy-skill",
         "./skills/grilling",
+        "./skills/handoff",
         "./skills/skill-design-principles"
       ]
     }
