@@ -20,6 +20,15 @@
         "./skills/handoff",
         "./skills/skill-design-principles"
       ]
+    },
+    {
+      "name": "engineering",
+      "description": "コードレビューなど、エンジニアリング関連のClaude Skills",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skills/code-review"
+      ]
     }
   ]
 }

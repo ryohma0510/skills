@@ -17,6 +17,7 @@ npx skills add ryohma0510/skills
 ```
 /plugin marketplace add ryohma0510/skills
 /plugin install productivity@ryohma0510-skills
+/plugin install engineering@ryohma0510-skills
 ```
 
 ## ディレクトリ構成
@@ -43,6 +44,7 @@ skills/
 
 | スキル名 | 概要 |
 | --- | --- |
+| [code-review](skills/code-review/SKILL.md) | diff や checkout 済みの他人の PR を設計品質の観点でレビューする |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [handoff](skills/handoff/SKILL.md) | 現在の会話をハンドオフドキュメントにまとめ、他のエージェントが引き継げるようにする |
