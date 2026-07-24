@@ -8,7 +8,7 @@ source: https://github.com/ryohma0510/main-vault/tree/main/.claude/skills/my-cod
 imported_at: 2026-07-24
 -->
 
-# My Code Review
+# Code Review
 
 diff の中から、設計品質の劣化を探す。自分の実装のセルフレビューと、checkout 済みの他人の PR のレビュー補助の両方で使う。
 
