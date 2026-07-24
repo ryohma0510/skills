@@ -15,7 +15,8 @@
       "source": "./",
       "strict": true,
       "skills": [
-        "./skills/copy-skill"
+        "./skills/copy-skill",
+        "./skills/skill-design-principles"
       ]
     }
   ]
