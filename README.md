@@ -44,6 +44,7 @@ skills/
 | スキル名 | 概要 |
 | --- | --- |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
+| [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | スキルをうまく書き・編集するためのリファレンス。スキルを予測可能にする語彙と原則 |
 
 ## 開発フロー

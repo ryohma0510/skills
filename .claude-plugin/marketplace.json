@@ -16,6 +16,7 @@
       "strict": true,
       "skills": [
         "./skills/copy-skill",
+        "./skills/grilling",
         "./skills/skill-design-principles"
       ]
     }
