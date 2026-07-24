@@ -1,5 +1,5 @@
 ---
-name: writing-great-skills
+name: skill-design-principles
 description: スキルをうまく書き・編集するためのリファレンス — スキルを予測可能（predictable）にする語彙と原則。
 disable-model-invocation: true
 ---

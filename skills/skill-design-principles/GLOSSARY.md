@@ -1,6 +1,6 @@
 # Glossary — Building Great Skills
 
-何がスキルを優れたものにするかについてのドメインモデル。スキルが存在するのは、確率的なシステムから決定性を絞り出すためであり、根幹の美徳は **Predictability** である。以下の各用語はすべて、それに対するレバーだ。これは [`writing-great-skills`](SKILL.md) のdisclosed referenceである。
+何がスキルを優れたものにするかについてのドメインモデル。スキルが存在するのは、確率的なシステムから決定性を絞り出すためであり、根幹の美徳は **Predictability** である。以下の各用語はすべて、それに対するレバーだ。これは [`skill-design-principles`](SKILL.md) のdisclosed referenceである。
 
 用語は軸ごとにグループ化されている：**Invocation**（スキルにどう到達するか）、**Information Hierarchy**（内容がどう構成されるか）、**Steering**（エージェントの実行時の振る舞いがどう形作られるか）、**Pruning**（どうスキルを引き締めた状態に保つか）。各failure modeは、それを治すレバーのそばに置かれ、_failure mode_ とタグ付けされている。
 
