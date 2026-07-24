@@ -44,6 +44,7 @@ skills/
 | スキル名 | 概要 |
 | --- | --- |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
+| [writing-great-skills](skills/writing-great-skills/SKILL.md) | スキルをうまく書き・編集するためのリファレンス。スキルを予測可能にする語彙と原則 |
 
 ## 開発フロー
 
