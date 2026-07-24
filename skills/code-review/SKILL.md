@@ -1,10 +1,10 @@
 ---
-name: my-code-review
+name: code-review
 description: 自分の diff や、checkout 済みの他人の PR を設計品質の観点でレビューする。照合できる証拠がある指摘だけを最大3件報告する。
 disable-model-invocation: true
 ---
 <!--
-source: https://github.com/ryohma0510/main-vault/tree/main/.claude/skills/my-code-review
+source: https://github.com/ryohma0510/main-vault/tree/main/.claude/skills/my-code-review (name changed to code-review after import)
 imported_at: 2026-07-24
 -->
 

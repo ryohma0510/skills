@@ -27,7 +27,7 @@
       "source": "./",
       "strict": true,
       "skills": [
-        "./skills/my-code-review"
+        "./skills/code-review"
       ]
     }
   ]
