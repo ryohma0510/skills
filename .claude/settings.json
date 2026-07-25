@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "deny": ["AskUserQuestion"]
+  },
+  "disableWorkflows": true,
+  "disableArtifact": true,
+  "disableClaudeAiConnectors": true
+}
