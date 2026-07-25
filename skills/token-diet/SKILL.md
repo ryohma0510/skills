@@ -1,6 +1,6 @@
 ---
 name: token-diet
-description: Claude Code のシステムプロンプトを軽量化する設定を ~/.claude/settings.json に適用し、削減量を実測する。
+description: Claude Code のシステムプロンプトを軽量化する設定を settings.json に適用し、削減量を実測する。適用先はグローバル・リポジトリ・リポジトリlocalから選ぶ。
 disable-model-invocation: true
 ---
 
