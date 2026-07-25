@@ -1,0 +1,134 @@
+# 実測手順と計測結果
+
+## 測り方
+
+`scripts/measure.sh` は `claude -p` を1回走らせ、`--output-format json` が返す `modelUsage` から `inputTokens + cacheCreationInputTokens + cacheReadInputTokens` を合計して出す。プロンプトキャッシュが効くと `cacheCreationInputTokens` だけを見た値は途中から 0 に落ちるため、3つを必ず足す。
+
+レバーを1つずつ評価するときは、候補を1個だけ書いた設定ファイルを `--bare` 付きで測り、同じく `--bare` で測ったベースラインとの差を取る。
+
+```bash
+./scripts/measure.sh --bare                    # ベースライン
+echo '{"disableWorkflows": true}' > /tmp/one.json
+./scripts/measure.sh --bare /tmp/one.json      # 候補1個
+```
+
+### 実行ディレクトリで数値が変わる
+
+| 呼び方 | 読み込むもの |
+| --- | --- |
+| `--bare` | 何も読まない。ハーネスの下限 |
+| 既定 | ユーザー設定とユーザースキル。空の一時ディレクトリで走る |
+| `--here` | 上記に加えてカレントディレクトリの `CLAUDE.md`・MCP サーバ・プロジェクトスキル・`.claude/settings.json` |
+
+プロジェクトの `.claude/settings.json` を評価できるのは `--here` だけである。適用前後は同じ呼び方で測って比べる。
+
+同一環境での実測例（2.1.220 / Sonnet 5）:
+
+| 呼び方 | プリセットなし | プリセットあり |
+| --- | --- | --- |
+| `--bare` | 33,906 | 20,089 |
+| 既定 | 35,780 | 22,113 |
+| `--here`（プロジェクト設定として配置） | 35,851 | 22,149 |
+
+`--bare` と既定の差 1,945 は `~/.claude/skills/` に置いたユーザースキルのカタログ分である。`disableBundledSkills` が消すのはバイナリ同梱のスキルだけなので、この分は削減後も残る。
+
+## 計測結果（Claude Code 2.1.220 / Sonnet 5 / ベースライン 33,906）
+
+| 順位 | レバー | 削減 | 割合 |
+| --- | --- | --- | --- |
+| 1 | `disableWorkflows` | 7,900 | 23.3% |
+| 2 | `disableArtifact` | 4,144 | 12.2% |
+| 3 | `disableBundledSkills` | 1,890 | 5.6% |
+| 4 | `deny: ScheduleWakeup` | 1,403 | 4.1% |
+| 5 | `deny: ReportFindings` | 821 | 2.4% |
+| 6 | `env: CLAUDE_CODE_DISABLE_CRON` | 148 | 0.44% |
+| 7 | `deny: NotebookEdit` | 8 | 0.02% |
+| 8 | `deny: DesignSync` / `SendMessage` / `PushNotification` / `CronCreate` / `CronDelete` | 各 6 | 各 0.02% |
+| 13 | `deny: Monitor` | 5 | 0.01% |
+| 14 | `deny: CronList` | 4 | 0.01% |
+| 15 | `disableRemoteControl` | 0 | 0% |
+| 15 | `disableClaudeAiConnectors` | 0 | 0% |
+| 15 | `deny: RemoteTrigger` | 0 | 0% |
+
+`deny: AskUserQuestion` `deny: EnterPlanMode` `deny: ExitPlanMode` は対話モード専用ツールで `-p` にロードされないため、この方法では測れない。対話セッションでは存在するので `/context` で確認する。
+
+`disableRemoteControl` と `disableClaudeAiConnectors` の 0 は計測環境の事情による。クラウドセッションはリモートコントロールが元から利用不可で、コネクタも未設定だった。ローカルでコネクタを繋いでいれば、そのツールスキーマ分が削れる。
+
+`deny: RemoteTrigger` が 0 なのは、この版に該当ツールがロードされないため。
+
+## skillOverrides
+
+スキルは名前と description がカタログとしてシステムプロンプトに載る。`skillOverrides` はスキル1個ずつ、そのカタログへの載り方を切り替える。`~/.claude/skills/` の9スキルに一括適用した実測値:
+
+| 値 | トークン | 削減 | モデルが自発的に使う | `/名前` |
+| --- | --- | --- | --- | --- |
+| `on`（既定） | 22,112 | — | する | 呼べる |
+| `name-only` | 20,238 | 1,874 | 存在だけ知る | 呼べる |
+| `user-invocable-only` | 20,090 | 2,022 | しない | 呼べる |
+| `off` | 20,091 | 2,021 | しない | 呼べない |
+
+コストの93%は description が占める。`off` は `user-invocable-only` と削減量が同じで `/名前` を失うだけなので、スキルを完全に隠す目的がなければ選ぶ理由がない。
+
+`disableBundledSkills` はバイナリ同梱スキルしか消さない。`~/.claude/skills/` に自分で入れたスキルを削るのはこちらの役目である。
+
+## プリセットがスキル関連のレバーを持たない理由
+
+ベースライン 35,782 での比較:
+
+| 構成 | トークン | 削減 |
+| --- | --- | --- |
+| 何もなし | 35,782 | — |
+| 現行プリセット | 23,771 | 12,011（33.6%） |
+| 現行プリセット + `disableBundledSkills` + `skillOverrides` 4件 | 21,102 | 14,680（41.0%） |
+
+スキルを削る2つのレバーの取り分は 2,669（ベースラインの7.5%）で、削減量の82%は `disableWorkflows` と `disableArtifact` だけで取れている。
+
+この2つは守備範囲が食い違うため、揃えると設定が急に複雑になる。`disableBundledSkills` はバイナリ同梱分しか消さず、`~/.claude/skills/` のユーザースキルを削るには `skillOverrides` が別途要る。`skillOverrides` はスキル名の列挙なのでマシンごとに中身が変わり、保守が発生する。どちらもスラッシュコマンドは残るので、消えたかどうかも直感に反する。
+
+7.5%のためにこれを背負う判断をしなかった。必要になったら上の実測値を見て個別に足す。
+
+## プリセットに上乗せできる候補
+
+`disableBundledSkills` を含む構成（20,090）を基準に測った追加削減。各レバーは独立しているので、現行プリセットに足しても概ね同じだけ効く:
+
+| レバー | 削減 | 備考 |
+| --- | --- | --- |
+| `env: CLAUDE_CODE_DISABLE_GIT_INSTRUCTIONS` | 2,385 | コミット・PR 作成の指示が消える。git 操作を任せるなら入れない |
+| `env: CLAUDE_CODE_DISABLE_BACKGROUND_TASKS` | 853 | バックグラウンド実行 |
+| `env: CLAUDE_CODE_DISABLE_ATTACHMENTS` | 289 | 添付ファイル |
+| `disableAgentView` | 51 | エージェントビュー |
+| `env: CLAUDE_CODE_DISABLE_AUTO_MEMORY` ほか | 0〜3 | 誤差 |
+
+## MCP サーバのコスト
+
+20ツールを持つ MCP サーバを1つ足したときの増分:
+
+| 遅延ロード | MCP なし | MCP あり | 増分 |
+| --- | --- | --- | --- |
+| ON（既定） | 33,906 | 34,206 | 300 |
+| OFF | 54,077 | 61,977 | 7,900 |
+
+既定では1ツールあたり15トークン、遅延ロードが切れると395トークンで、26倍の差がある。「MCP がコンテキストの半分を食う」という報告は遅延ロードが無効な環境のものと考えてよい。
+
+遅延ロードそのものの効果は 20,171（54,077 → 33,906）で、このプリセット全体より大きい。Vertex AI・自前プロキシ経由・非対応モデルでは自動で無効化されるため、該当する場合は他の設定より先にここを疑う。
+
+## 個別ツールの deny がほとんど効かない理由
+
+`tengu_non_deferrable_builtins` に載っているツールだけがスキーマを常時展開し、それ以外は ToolSearch によって名前だけの遅延ロードになる。遅延ロード対象を deny しても消えるのは名前分の 5〜6 トークンだけで、上の表で4位と5位だけが突出しているのはこの2つが非遅延ビルトインだからである。
+
+ToolSearch の有効判定は `qYr()` が返すモードで決まり、環境変数 `ENABLE_TOOL_SEARCH` 未設定・first-party ホスト・対応モデルなら既定で有効になる。
+
+検証のため一時的に無効化するなら `ENABLE_TOOL_SEARCH=false` を使う。`ENABLE_TOOL_SEARCH=100` は truthy な文字列として有効側に倒れるので、無効化したつもりで同じ数値が出る。
+
+## ロギングプロキシで測るときの落とし穴
+
+`ANTHROPIC_BASE_URL` を自前のプロキシに向けると、Claude Code は「プロキシが `tool_reference` ブロックを転送しない可能性がある」と判断して ToolSearch を自動的に無効化する。全ツールのスキーマが展開された状態のペイロードが観測されるため、個別ツールが実際よりはるかに大きく見える。
+
+プロキシ経由で得たツール別ランキングを、そのまま通常セッションの削減見込みとして使わないこと。プロキシで測るなら `ENABLE_TOOL_SEARCH=true` を明示して条件を揃える。
+
+## 出典
+
+Matt Pocock, "How To Kill The Bloat In Claude Code's System Prompt" (AI Hero)
+<https://www.aihero.dev/how-to-kill-the-bloat-in-claude-codes-system-prompt>
+
+記事は `/context` とロギングプロキシで測る手順を示し、著者の環境で削るに値した設定を列挙している。記事自身が "Treat it as a menu, not a prescription." と断っているとおり、列挙されたリストは環境ごとに測り直して取捨する前提のものである。
