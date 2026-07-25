@@ -50,9 +50,17 @@ Claude Code は毎リクエスト、ツール定義・スキルカタログ・�
   "disableWorkflows": true,
   "disableArtifact": true,
   "disableBundledSkills": true,
-  "disableClaudeAiConnectors": true
+  "disableClaudeAiConnectors": true,
+  "skillOverrides": {
+    "docx": "user-invocable-only",
+    "xlsx": "user-invocable-only",
+    "pptx": "user-invocable-only",
+    "pdf": "user-invocable-only"
+  }
 }
 ```
+
+`skillOverrides` のキーは `~/.claude/skills/` に実際に入っているスキル名に合わせる。並んでいる4つはファイルを触るときに自分から呼ぶ種類なので、`user-invocable-only` にしても `/docx` のように名前で呼べる。存在しない名前を書いても無視されるだけで害はない。
 
 **完了条件**: マージ後の JSON が妥当で、元々あった設定が1つも消えていない。
 
@@ -77,6 +85,7 @@ Claude Code は毎リクエスト、ツール定義・スキルカタログ・�
 | `disableWorkflows` | 動的ワークフロー |
 | `disableClaudeAiConnectors` | claude.ai コネクタ |
 | `deny: AskUserQuestion` | 選択肢UI。質問はテキストで届く |
+| `skillOverrides` | 挙げたスキルを Claude が自発的に思いつかなくなる。`/名前` で呼べば従来どおり動く |
 
 ## 元に戻す
 
