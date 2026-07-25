@@ -29,6 +29,15 @@
       "skills": [
         "./skills/code-review"
       ]
+    },
+    {
+      "name": "misc",
+      "description": "どのカテゴリにも属さない、その他のClaude Skills",
+      "source": "./",
+      "strict": true,
+      "skills": [
+        "./skills/token-diet"
+      ]
     }
   ]
 }
