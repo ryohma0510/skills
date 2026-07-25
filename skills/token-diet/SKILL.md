@@ -49,18 +49,11 @@ Claude Code は毎リクエスト、ツール定義・スキルカタログ・�
   },
   "disableWorkflows": true,
   "disableArtifact": true,
-  "disableBundledSkills": true,
-  "disableClaudeAiConnectors": true,
-  "skillOverrides": {
-    "docx": "user-invocable-only",
-    "xlsx": "user-invocable-only",
-    "pptx": "user-invocable-only",
-    "pdf": "user-invocable-only"
-  }
+  "disableClaudeAiConnectors": true
 }
 ```
 
-`skillOverrides` のキーは `~/.claude/skills/` に実際に入っているスキル名に合わせる。並んでいる4つはファイルを触るときに自分から呼ぶ種類なので、`user-invocable-only` にしても `/docx` のように名前で呼べる。存在しない名前を書いても無視されるだけで害はない。
+この4つだけで削減量の82%が取れる。スキルを削るレバー（`disableBundledSkills` と `skillOverrides`）は残り18%のために設定が倍の複雑さになるので、プリセットからは外してある。必要になったら [`references/measurements.md`](references/measurements.md) に実測値と使い方がある。
 
 **完了条件**: マージ後の JSON が妥当で、元々あった設定が1つも消えていない。
 
@@ -80,12 +73,12 @@ Claude Code は毎リクエスト、ツール定義・スキルカタログ・�
 
 | 設定 | 失うもの |
 | --- | --- |
-| `disableBundledSkills` | バイナリに同梱されたスキル全て（dataviz / update-config / security-review など）。スラッシュコマンドは打てる状態で残る。`~/.claude/skills/` に自分で入れたスキルは消えず、カタログ分のトークンも残る |
-| `disableArtifact` | Artifact の公開。Artifact を前提にしたスキルも動かなくなる |
 | `disableWorkflows` | 動的ワークフロー |
+| `disableArtifact` | Artifact の公開。Artifact を前提にしたスキルも動かなくなる |
 | `disableClaudeAiConnectors` | claude.ai コネクタ |
 | `deny: AskUserQuestion` | 選択肢UI。質問はテキストで届く |
-| `skillOverrides` | 挙げたスキルを Claude が自発的に思いつかなくなる。`/名前` で呼べば従来どおり動く |
+
+スキルはどれも消えない。組み込みスキルもユーザースキルも従来どおり使える。
 
 ## 元に戻す
 

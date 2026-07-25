@@ -58,9 +58,9 @@ skills/
 
 `.claude/settings.json` に `token-diet` スキルのプリセットを適用済み。このリポジトリで Claude Code を起動したときだけ効き、他のプロジェクトには影響しない。全プロジェクトに効かせたい場合は `~/.claude/settings.json` に同じ内容を置く(`/token-diet` が手順を案内する)。
 
-無効化しているのは動的ワークフロー、Artifact、バイナリ同梱スキル、claude.ai コネクタ、選択肢UI(`AskUserQuestion`)。`skillOverrides` で `docx` / `xlsx` / `pptx` / `pdf` をモデルの自動発火から外しているが、`/docx` のように名前で呼べば従来どおり動く。
+無効化しているのは動的ワークフロー、Artifact、claude.ai コネクタ、選択肢UI(`AskUserQuestion`)の4つ。スキルは組み込み・ユーザーとも一切消していないので、`skill-creator` を含めて従来どおり使える。
 
-`skill-creator` は `~/.claude/skills/` 配下のユーザースキルなので `disableBundledSkills` の対象外で、そのまま使える。
+スキルを削るレバーもあるが、削減量の割に設定が複雑になるためプリセットからは外した。詳細と実測値は `skills/token-diet/references/measurements.md` にある。
 
 削減量は `skills/token-diet/scripts/measure.sh --here` で再計測できる。
 
