@@ -29,6 +29,8 @@ skills/
 ├── .gitignore
 ├── .claude-plugin/
 │   └── marketplace.json   # Claude Code プラグインとして配布するためのマニフェスト
+├── .claude/
+│   └── settings.json      # このリポジトリで作業するときだけ効くプロジェクト設定
 └── skills/
     └── <skill-name>/
         ├── SKILL.md        # 必須。YAML frontmatter (name, description) + 本文
@@ -51,6 +53,16 @@ skills/
 | [handoff](skills/handoff/SKILL.md) | 現在の会話をハンドオフドキュメントにまとめ、他のエージェントが引き継げるようにする |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | スキルをうまく書き・編集するためのリファレンス。スキルを予測可能にする語彙と原則 |
 | [token-diet](skills/token-diet/SKILL.md) | Claude Code のシステムプロンプトを軽量化する設定を適用し、削減量を実測する |
+
+## プロジェクト設定
+
+`.claude/settings.json` に `token-diet` スキルのプリセットを適用済み。このリポジトリで Claude Code を起動したときだけ効き、他のプロジェクトには影響しない。全プロジェクトに効かせたい場合は `~/.claude/settings.json` に同じ内容を置く(`/token-diet` が手順を案内する)。
+
+無効化しているのは動的ワークフロー、Artifact、バイナリ同梱スキル、claude.ai コネクタ、選択肢UI(`AskUserQuestion`)。`skillOverrides` で `docx` / `xlsx` / `pptx` / `pdf` をモデルの自動発火から外しているが、`/docx` のように名前で呼べば従来どおり動く。
+
+`skill-creator` は `~/.claude/skills/` 配下のユーザースキルなので `disableBundledSkills` の対象外で、そのまま使える。
+
+削減量は `skills/token-diet/scripts/measure.sh --here` で再計測できる。
 
 ## 開発フロー
 

@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "deny": ["AskUserQuestion"]
+  },
+  "disableWorkflows": true,
+  "disableArtifact": true,
+  "disableBundledSkills": true,
+  "disableClaudeAiConnectors": true,
+  "skillOverrides": {
+    "docx": "user-invocable-only",
+    "xlsx": "user-invocable-only",
+    "pptx": "user-invocable-only",
+    "pdf": "user-invocable-only"
+  }
+}
