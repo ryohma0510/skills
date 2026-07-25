@@ -2,7 +2,7 @@
 
 ## 測り方
 
-`scripts/measure.sh` は `claude -p` を空ディレクトリで1回走らせ、`--output-format json` が返す `modelUsage` から `inputTokens + cacheCreationInputTokens + cacheReadInputTokens` を合計して出す。プロンプトキャッシュが効くと `cacheCreationInputTokens` だけを見た値は途中から 0 に落ちるため、3つを必ず足す。
+`scripts/measure.sh` は `claude -p` を1回走らせ、`--output-format json` が返す `modelUsage` から `inputTokens + cacheCreationInputTokens + cacheReadInputTokens` を合計して出す。プロンプトキャッシュが効くと `cacheCreationInputTokens` だけを見た値は途中から 0 に落ちるため、3つを必ず足す。
 
 レバーを1つずつ評価するときは、候補を1個だけ書いた設定ファイルを `--bare` 付きで測り、同じく `--bare` で測ったベースラインとの差を取る。
 
@@ -11,6 +11,26 @@
 echo '{"disableWorkflows": true}' > /tmp/one.json
 ./scripts/measure.sh --bare /tmp/one.json      # 候補1個
 ```
+
+### 実行ディレクトリで数値が変わる
+
+| 呼び方 | 読み込むもの |
+| --- | --- |
+| `--bare` | 何も読まない。ハーネスの下限 |
+| 既定 | ユーザー設定とユーザースキル。空の一時ディレクトリで走る |
+| `--here` | 上記に加えてカレントディレクトリの `CLAUDE.md`・MCP サーバ・プロジェクトスキル・`.claude/settings.json` |
+
+プロジェクトの `.claude/settings.json` を評価できるのは `--here` だけである。適用前後は同じ呼び方で測って比べる。
+
+同一環境での実測例（2.1.220 / Sonnet 5）:
+
+| 呼び方 | プリセットなし | プリセットあり |
+| --- | --- | --- |
+| `--bare` | 33,906 | 20,089 |
+| 既定 | 35,780 | 22,113 |
+| `--here`（プロジェクト設定として配置） | 35,851 | 22,149 |
+
+`--bare` と既定の差 1,945 は `~/.claude/skills/` に置いたユーザースキルのカタログ分である。`disableBundledSkills` が消すのはバイナリ同梱のスキルだけなので、この分は削減後も残る。
 
 ## 計測結果（Claude Code 2.1.220 / Sonnet 5 / ベースライン 33,906）
 

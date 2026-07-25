@@ -1,33 +1,42 @@
 #!/usr/bin/env bash
 # Report the per-request input-token cost of a Claude Code configuration.
 #
-#   ./measure.sh                 # current effective settings
-#   ./measure.sh preset.json     # current settings with preset.json layered on top
+#   ./measure.sh                 # user + global settings, isolated from any project
+#   ./measure.sh preset.json     # the same, with preset.json layered on top
+#   ./measure.sh --here          # the current directory as it really is
 #   ./measure.sh --bare          # no settings sources at all (harness floor)
 #   ./measure.sh --bare p.json   # preset.json alone, nothing else
 #
-# Runs from an empty directory so project CLAUDE.md, MCP servers and project
-# skills stay out of the number. Compare runs taken the same way.
+# By default the run happens in an empty directory, so project CLAUDE.md, MCP
+# servers, project skills and project settings stay out of the number. Pass
+# --here to measure a project as configured, which is the only mode that picks
+# up a project-level .claude/settings.json. Compare runs taken the same way.
 set -euo pipefail
 
 command -v claude >/dev/null || { echo "claude not found in PATH" >&2; exit 1; }
 command -v python3 >/dev/null || { echo "python3 not found in PATH" >&2; exit 1; }
 
 args=(-p "Reply with exactly: ok" --output-format json)
+here=""
 
-if [ "${1-}" = "--bare" ]; then
-  args+=(--setting-sources '')
-  shift
-fi
+while true; do
+  case "${1-}" in
+    --bare) args+=(--setting-sources ''); shift ;;
+    --here) here=1; shift ;;
+    *) break ;;
+  esac
+done
 
 if [ $# -gt 0 ]; then
   [ -f "$1" ] || { echo "settings file not found: $1" >&2; exit 1; }
   args+=(--settings "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")")
 fi
 
-workdir=$(mktemp -d)
-trap 'rm -rf "$workdir"' EXIT
-cd "$workdir"
+if [ -z "$here" ]; then
+  workdir=$(mktemp -d)
+  trap 'rm -rf "$workdir"' EXIT
+  cd "$workdir"
+fi
 
 claude "${args[@]}" | python3 -c '
 import json, re, sys
