@@ -1,0 +1,26 @@
+name: check-skills
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # merge-base を取るため全履歴とシンボリックリンクをそのまま取得する
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: check_skills
+        run: python3 scripts/check_skills.py
+
+      - name: check_version_bump
+        if: github.event_name == 'pull_request'
+        run: python3 scripts/check_version_bump.py --base "origin/${{ github.base_ref }}"
