@@ -18,7 +18,6 @@ npx skills add ryohma0510/skills
 /plugin marketplace add ryohma0510/skills
 /plugin install productivity@ryohma0510-skills
 /plugin install engineering@ryohma0510-skills
-/plugin install misc@ryohma0510-skills
 ```
 
 ## ディレクトリ構成
@@ -50,7 +49,6 @@ skills/
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [handoff](skills/handoff/SKILL.md) | 現在の会話をハンドオフドキュメントにまとめ、他のエージェントが引き継げるようにする |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | スキルをうまく書き・編集するためのリファレンス。スキルを予測可能にする語彙と原則 |
-| [token-diet](skills/token-diet/SKILL.md) | Claude Code のシステムプロンプトを軽量化する設定を適用し、削減量を実測する |
 
 ## 開発フロー
 
