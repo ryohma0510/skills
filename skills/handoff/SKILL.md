@@ -1,8 +1,7 @@
 ---
 name: handoff
-description: 現在の会話をハンドオフドキュメントにまとめ、他のエージェントが引き継げるようにする。
+description: ハンドオフ——会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする。ユーザーが引き継ぎや仕切り直しを求めたときに使う。
 argument-hint: "次のセッションは何のために使う予定か？"
-disable-model-invocation: true
 ---
 <!--
 source: https://github.com/mattpocock/skills/tree/main/skills/productivity/handoff
