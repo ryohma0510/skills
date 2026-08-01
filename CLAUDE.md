@@ -13,15 +13,18 @@
 2. **README.md を更新する** — 「スキル一覧」表に行を追加・修正・削除する。リンクは `skills/<name>/SKILL.md`。概要は `SKILL.md` の `description` と食い違わせない。
 3. **marketplace.json の `plugins[].skills` に登録する**(新規追加・削除時) — `./skills/<name>`。エンジニアリング系は `engineering`、それ以外は `productivity`。
 4. **`.claude/skills/<name>` のシンボリックリンク**(新規追加・削除時) — `ln -s ../../skills/<name> .claude/skills/<name>`。削除したスキルのリンクは消す。
-5. **チェックスクリプトを通す** — `python3 scripts/check_skills.py`。error が 0 であること。3 と 4 の漏れ(S11/S12)と README の漏れ(S13)はここで検出できるが、**バージョン更新の漏れは検出されない**ので自分で確認する。
+5. **チェックスクリプトを通す** — 下の 2 本を error 0 で通す。
 
 コミット前のセルフチェック:
 
 ```bash
-python3 scripts/check_skills.py && git diff --stat
+python3 scripts/check_skills.py                          # S01-S15: SKILL.md 単体 + 3・4・READMEの行
+python3 scripts/check_version_bump.py --base origin/main  # V01-V03: versionの更新漏れ
 ```
 
-`git diff --stat` に `skills/` の変更があるのに `.claude-plugin/marketplace.json` と `README.md` が含まれていなければ、上の 1・2 が漏れている。
+- `check_skills.py` — 3 の漏れ(S12)、4 の漏れ(S11)、README の行の欠落(S13)を検出する。
+- `check_version_bump.py` — base ref との merge-base を取り、`skills/` に変更があるのに `metadata.version` が据え置き(V01)/後退(V02)していないかを見る。`SKILL.md` の `description` が変わったのに README.md が未更新なら warn(V03)。
+- CI(`.github/workflows/check-skills.yml`)は PR で両方を実行する。`check_version_bump.py` は PR のみ(base ref が必要なため)。
 
 ## スキルの書き方
 
