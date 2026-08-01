@@ -1,7 +1,6 @@
 ---
 name: skill-design-principles
-description: スキルをうまく書き・編集するためのリファレンス — スキルを予測可能（predictable）にする語彙と原則。
-disable-model-invocation: true
+description: スキルをうまく書き・編集するためのリファレンス — スキルを予測可能（predictable）にする語彙と原則。スキルを新規作成・編集・改善するとき、descriptionやSKILL.mdの構成・分割・削り込みを判断するとき、スキルが発動しない・途中で作業を切り上げるといった問題を診断するときに使う。
 ---
 <!--
 source: https://github.com/mattpocock/skills/tree/main/skills/productivity/writing-great-skills
