@@ -6,10 +6,15 @@
 
 ```typescript
 // GOOD: Tests observable behavior
-test("user can checkout with valid cart", async () => {
+test("should confirm the order when the cart has items", async () => {
+  // Given
   const cart = createCart();
   cart.add(product);
+
+  // When
   const result = await checkout(cart, paymentMethod);
+
+  // Then
   expect(result.status).toBe("confirmed");
 });
 ```
@@ -53,8 +58,14 @@ test("createUser saves to database", async () => {
 });
 
 // GOOD: Verifies through interface
-test("createUser makes user retrievable", async () => {
-  const user = await createUser({ name: "Alice" });
+test("should make the user retrievable when created", async () => {
+  // Given
+  const name = "Alice";
+
+  // When
+  const user = await createUser({ name });
+
+  // Then
   const retrieved = await getUser(user.id);
   expect(retrieved.name).toBe("Alice");
 });
@@ -71,7 +82,67 @@ test("calculateTotal sums line items", () => {
 });
 
 // GOOD: Expected value is an independent, known literal
-test("calculateTotal sums line items", () => {
-  expect(calculateTotal([{ price: 10 }, { price: 5 }])).toBe(15);
+test("should sum the line item prices", () => {
+  // Given
+  const items = [{ price: 10 }, { price: 5 }];
+
+  // When
+  const total = calculateTotal(items);
+
+  // Then
+  expect(total).toBe(15);
 });
 ```
+
+**過剰共有（over-DRY）なテスト**: 結果を左右する値がヘルパーの中に隠れている。
+
+```typescript
+// BAD: The value that decides the outcome lives inside the helper
+function setupUser() {
+  return createUser({ name: "Alice", plan: "free", credits: 0 });
+}
+
+test("should reject the export when the user has no credits", async () => {
+  const user = setupUser();
+  const result = await requestExport(user);
+  expect(result.status).toBe("rejected");
+});
+
+// GOOD: The builder stays shared, the deciding value is written in the test
+test("should reject the export when the user has no credits", async () => {
+  // Given
+  const user = createUser({ plan: "free", credits: 0 });
+
+  // When
+  const result = await requestExport(user);
+
+  // Then
+  expect(result.status).toBe("rejected");
+});
+```
+
+`createUser` のような値のビルダーは共有してよい。テスト本体に戻すべきなのは `credits: 0` ——このテストが通るか落ちるかを決めている値である。
+
+## パラメタライズドテスト
+
+シナリオが同一で、入力と期待値だけが違うとき。各ケースは自分の名前を持ち、その名前も `should ... when ...` で書く。
+
+```typescript
+// GOOD: Same scenario throughout, only input and expected value differ
+test.each([
+  ["should return 401 when the token is missing", undefined, 401],
+  ["should return 401 when the token is expired", EXPIRED_TOKEN, 401],
+  ["should return 200 when the token is valid", VALID_TOKEN, 200],
+])("%s", async (_name, token, expectedStatus) => {
+  // Given
+  const headers = token ? { Authorization: token } : {};
+
+  // When
+  const response = await get("/me", headers);
+
+  // Then
+  expect(response.status).toBe(expectedStatus);
+});
+```
+
+ケースごとにセットアップやアサーションが分岐し始めたら、シナリオはもう同一ではない。個別のテストに割ること。
