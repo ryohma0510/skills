@@ -28,11 +28,12 @@ note: DAMP・should/when 命名・Given-When-Then は『Googleのソフトウェ
 - `should return 401 when the token is missing`
 - `should create an empty cart`
 
-`should` 節にも `when` 節にも、観測できる結果と、それを引き起こす具体的な入力を書く。判断を名指しする語——`correct` / `correctly` / `valid` / `invalid` / `proper` / `properly` / `appropriate` / `expected` / `as expected` / `right` / `good` / `bad` / `works` / `successfully` / `gracefully` / `handles`——は、何が有効で何が正しいのかを名前から消してしまう。
+`should` 節にも `when` 節にも、観測できる結果と、それを引き起こす具体的な入力を書く。判定: **名前だけを読んで、その条件を満たす入力を1つ書き出せるか。** `correct` / `correctly` / `valid` / `invalid` / `proper` / `properly` / `appropriate` / `expected` / `as expected` / `right` / `good` / `bad` / `works` / `successfully` / `gracefully` / `handles` といった判断を名指しする語は、これを満たせない——何が有効で何が正しいのかを名前から消してしまうからである。成功パスも同じ扱いで、そこを満たす具体的な条件に置き換えること。
 
 - `should reject invalid tokens` → `should return 401 when the token has expired`
 - `should handle empty input` → `should return 0 when the cart is empty`
 - `should calculate the total correctly` → `should sum price times quantity across all line items`
+- `should return 200 when the token is valid` → `should return 200 with the session when the token has not expired`
 
 **ボディ**——`// Given` `// When` `// Then` の3つのコメントで区切る。行数にかかわらず、すべてのテストに3つとも書く。前提を持たないテストでも `// Given` は置き、その下は空行のまま `// When` へ進む。DAMP に倒すとボディは長くなるため、この3つの印がフェーズの境界を保つ。
 
