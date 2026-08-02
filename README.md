@@ -49,6 +49,8 @@ skills/
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | Predictable なスキルを書くための語彙と原則。スキルの作成・編集・診断時に参照する |
+| [tdd](skills/tdd/SKILL.md) | red → green のループを回す手順。seam の確定・red・green の各ステップと vertical slice |
+| [test-design](skills/test-design/SKILL.md) | 良いテストの設計。seam でのテスト、アンチパターン、モックの境界 |
 
 ## 開発フロー
 
