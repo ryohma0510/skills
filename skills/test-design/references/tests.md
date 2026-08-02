@@ -81,6 +81,12 @@ test("calculateTotal sums line items", () => {
   expect(calculateTotal(items)).toBe(expected);
 });
 
+// BAD: The arithmetic is inlined into the assertion — same tautology
+test("calculateTotal sums line items", () => {
+  const items = [{ price: 10, qty: 3 }, { price: 5, qty: 2 }];
+  expect(calculateTotal(items)).toBe(10 * 3 + 5 * 2);
+});
+
 // GOOD: Expected value is an independent, known literal
 test("should sum the line item prices", () => {
   // Given
