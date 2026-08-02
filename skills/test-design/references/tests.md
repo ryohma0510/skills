@@ -138,7 +138,7 @@ test("should reject the export when the user has no credits", async () => {
 test.each([
   ["should return 401 when the token is missing", undefined, 401],
   ["should return 401 when the token is expired", EXPIRED_TOKEN, 401],
-  ["should return 200 when the token is valid", VALID_TOKEN, 200],
+  ["should return 200 when the token has not expired", LIVE_TOKEN, 200],
 ])("%s", async (_name, token, expectedStatus) => {
   // Given
   const headers = token ? { Authorization: token } : {};

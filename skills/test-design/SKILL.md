@@ -28,6 +28,12 @@ note: DAMP・should/when 命名・Given-When-Then は『Googleのソフトウェ
 - `should return 401 when the token is missing`
 - `should create an empty cart`
 
+`should` 節にも `when` 節にも、観測できる結果と、それを引き起こす具体的な入力を書く。判断を名指しする語——`correct` / `correctly` / `valid` / `invalid` / `proper` / `properly` / `appropriate` / `expected` / `as expected` / `right` / `good` / `bad` / `works` / `successfully` / `gracefully` / `handles`——は、何が有効で何が正しいのかを名前から消してしまう。
+
+- `should reject invalid tokens` → `should return 401 when the token has expired`
+- `should handle empty input` → `should return 0 when the cart is empty`
+- `should calculate the total correctly` → `should sum price times quantity across all line items`
+
 **ボディ**——`// Given` `// When` `// Then` の3つのコメントで区切る。行数にかかわらず、すべてのテストに3つとも書く。前提を持たないテストでも `// Given` は置き、その下は空行のまま `// When` へ進む。DAMP に倒すとボディは長くなるため、この3つの印がフェーズの境界を保つ。
 
 **パラメタライズド**——シナリオが同一で入力と期待値だけが違う場合に限り `test.each` / table-driven を使う。各ケースに名前をつけ、その名前も `should ... when ...` にする。
