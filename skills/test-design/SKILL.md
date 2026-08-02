@@ -39,10 +39,10 @@ note: DAMP・should/when 命名・Given-When-Then は『Googleのソフトウェ
 
 **パラメタライズド**——シナリオが同一で入力と期待値だけが違う場合に限り `test.each` / table-driven を使う。各ケースに名前をつけ、その名前も `should ... when ...` にする。
 
-**検査**——テストを書き終えたら `scripts/check_test_style.py` を実行し、報告された違反を直す。
+**検査**——テストを書き終えたら、この `SKILL.md` と同じディレクトリにある `scripts/check_test_style.py` を実行し、報告された違反を直す。テストファイルでもディレクトリでも渡せる。
 
 ```
-python3 scripts/check_test_style.py path/to/foo.test.ts
+python3 <このスキルのディレクトリ>/scripts/check_test_style.py path/to/foo.test.ts
 ```
 
 名前（T01/T02）、Given-When-Then（T03）、アサーション内での期待値の計算（T04）を決定的に検査する。DAMP・seam の選び方・モックの是非は意味の判断であり、この検査には含まれない——下のアンチパターンで自分で確かめること。
