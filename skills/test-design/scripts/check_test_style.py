@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
-"""test-design の規約に対する決定的な検査 (T01-T04)。stdlib のみ。
+"""test-design の規約に対する決定的な検査 (T01-T05)。stdlib のみ。
 
     python3 check_test_style.py src/cart.test.ts
     python3 check_test_style.py src/            # ディレクトリは再帰的に走査する
 
-検査するのは、機械が確実に見分けられる4つだけである。
+検査するのは、機械が確実に見分けられる5つだけである。
 
     T01  テスト名が should で始まっていない
     T02  テスト名に判断を名指しする語が入っている (correct / valid / ...)
     T03  Given-When-Then のコメントが3つ揃っていない
     T04  期待値がアサーションの中で計算されている (トートロジー)
+    T05  テスト本体に条件分岐がある (if / switch / 三項演算子)
 
 DAMP——決定的な値がヘルパーに隠れていないか——は意味の判断であり、ここでは見ない。
 seam の選び方、モックの是非、実装結合も同様に人が判断する領域である。
@@ -46,6 +47,13 @@ MATCHER_RE = re.compile(r"\.(?:toBe|toEqual|toStrictEqual|toBeCloseTo|toHaveLeng
 BINARY_OP_RE = re.compile(r"(?<=[\w)\]])\s*[-+*/%]\s*(?=[\w(\[])")
 DERIVED_RE = re.compile(r"\.(?:reduce|map|filter|flatMap)\s*\(")
 EXPECTED_VAR_RE = re.compile(r"\b(?:const|let|var)\s+\w*(?:expected|want)\w*\s*=\s*([^;\n]+)", re.I)
+
+# 三項は「空白 + ?」だけを見る。TS の省略可能マーカー (x?: T / x?.y) と ?? は空白を挟まない。
+BRANCH_RES = (
+    (re.compile(r"\bif\s*\("), "if"),
+    (re.compile(r"\bswitch\s*\("), "switch"),
+    (re.compile(r"\s\?(?![.?:=])"), "三項演算子"),
+)
 
 Finding = namedtuple("Finding", ["path", "line", "check_id", "message"])
 
@@ -251,6 +259,17 @@ def check_tautology(path, text, masked, bodies, findings):
                 )
 
 
+def check_branching(path, text, masked, bodies, findings):
+    for body_open, body_close, _ in bodies:
+        for pattern, label in BRANCH_RES:
+            for hit in pattern.finditer(masked, body_open, body_close):
+                findings.append(
+                    Finding(path, line_of(text, hit.start()), "T05",
+                            f"テスト本体に条件分岐 ({label}) があります"
+                            "——シナリオごとにテストを割るか、パラメタライズドの各ケースに分けること")
+                )
+
+
 def check_file(path):
     text = Path(path).read_text(encoding="utf-8")
     masked = mask_strings_and_comments(text)
@@ -260,6 +279,7 @@ def check_file(path):
     check_names(path, text, names, findings)
     check_gwt(path, text, masked, bodies, findings)
     check_tautology(path, text, masked, bodies, findings)
+    check_branching(path, text, masked, bodies, findings)
     return sorted(findings, key=lambda f: (f.line, f.check_id))
 
 

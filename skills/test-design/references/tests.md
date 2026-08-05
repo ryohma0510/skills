@@ -100,6 +100,53 @@ test("should sum the line item prices", () => {
 });
 ```
 
+**分岐のあるテスト**: テスト本体に条件分岐があり、テスト自身が検証を必要とするコードになっている。
+
+```typescript
+// BAD: The test branches — which assertion ran is no longer knowable from the name
+test("should price the order", () => {
+  // Given
+  const order = createOrder({ plan: "pro", seats: 3 });
+
+  // When
+  const price = calculatePrice(order);
+
+  // Then
+  if (order.plan === "pro") {
+    expect(price).toBe(90);
+  } else {
+    expect(price).toBe(30);
+  }
+});
+
+// BAD: A ternary in the setup — the condition decides what is being tested
+test("should return 401 when the token is missing", async () => {
+  // Given
+  const token = undefined;
+  const headers = token ? { Authorization: token } : {};
+
+  // When
+  const response = await get("/me", headers);
+
+  // Then
+  expect(response.status).toBe(401);
+});
+
+// GOOD: One scenario per test, every value written out
+test("should charge 30 per seat when the plan is pro", () => {
+  // Given
+  const order = createOrder({ plan: "pro", seats: 3 });
+
+  // When
+  const price = calculatePrice(order);
+
+  // Then
+  expect(price).toBe(90);
+});
+```
+
+分岐が入ったテストは、通ったときに何が確かめられたのかが名前から読み取れなくなる。条件が誤っていればアサーションは静かに素通りし、テストは緑のまま無を保証する。テストは「それ自体が正しいことを別のテストで証明する必要がないほど自明」でなければならない——だから分岐は、テストではなくケースの分割で表す。
+
 **過剰共有（over-DRY）なテスト**: 結果を左右する値がヘルパーの中に隠れている。
 
 ```typescript
@@ -136,12 +183,11 @@ test("should reject the export when the user has no credits", async () => {
 ```typescript
 // GOOD: Same scenario throughout, only input and expected value differ
 test.each([
-  ["should return 401 when the token is missing", undefined, 401],
-  ["should return 401 when the token is expired", EXPIRED_TOKEN, 401],
-  ["should return 200 when the token has not expired", LIVE_TOKEN, 200],
-])("%s", async (_name, token, expectedStatus) => {
+  ["should return 401 when the token is missing", {}, 401],
+  ["should return 401 when the token is expired", { Authorization: EXPIRED_TOKEN }, 401],
+  ["should return 200 when the token has not expired", { Authorization: LIVE_TOKEN }, 200],
+])("%s", async (_name, headers, expectedStatus) => {
   // Given
-  const headers = token ? { Authorization: token } : {};
 
   // When
   const response = await get("/me", headers);
