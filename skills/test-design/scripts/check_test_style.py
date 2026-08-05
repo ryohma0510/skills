@@ -266,7 +266,7 @@ def check_branching(path, text, masked, bodies, findings):
                 findings.append(
                     Finding(path, line_of(text, hit.start()), "T05",
                             f"テスト本体に条件分岐 ({label}) があります"
-                            "——シナリオごとにテストを割るか、パラメタライズドの各ケースに分けること")
+                            "——一本道になるよう、シナリオごとにテストを割ること")
                 )
 
 
