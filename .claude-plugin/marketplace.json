@@ -27,6 +27,7 @@
       "source": "./",
       "strict": true,
       "skills": [
+        "./skills/code-comments",
         "./skills/code-review",
         "./skills/tdd",
         "./skills/test-design"
