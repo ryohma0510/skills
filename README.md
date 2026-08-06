@@ -45,6 +45,7 @@ skills/
 | スキル名 | 概要 |
 | --- | --- |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
+| [code-naming](skills/code-naming/SKILL.md) | 変数・関数・型・モジュールの命名の原則。精度とスコープ比例を軸に、アンチパターンの検出とラベル付けも行う |
 | [code-review](skills/code-review/SKILL.md) | diff や checkout 済みの他人の PR を設計品質の観点でレビューする |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
