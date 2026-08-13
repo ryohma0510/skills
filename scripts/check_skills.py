@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S15). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S16). Stdlib only, manual invocation."""
 
 import json
 import re
@@ -164,6 +164,23 @@ def check_description(frontmatter, findings):
         )
 
 
+def check_description_no_caller_naming(name, frontmatter, findings):
+    description = frontmatter.get("description", "")
+    if not description:
+        return
+    other_names = sorted({p.parent.name for p in SKILLS_DIR.glob("*/SKILL.md") if p.parent.name != name})
+    for other in other_names:
+        if re.search(rf"`{re.escape(other)}`", description):
+            findings.append(
+                Finding(
+                    "S16",
+                    "error",
+                    f"description が他スキル '{other}' を名指ししています"
+                    "（呼び出し元は名指しせず、一般的な到達句を使うこと）",
+                )
+            )
+
+
 def check_body_length(body, findings):
     line_count = len(body.strip("\n").split("\n")) if body.strip("\n") else 0
     if line_count > MAX_BODY_LINES:
@@ -305,6 +322,7 @@ def check_skill(skill_dir):
 
     check_name(frontmatter, findings)
     check_description(frontmatter, findings)
+    check_description_no_caller_naming(name, frontmatter, findings)
     check_body_length(body, findings)
     check_references(skill_dir, body, findings)
     check_symlink(name, findings)
