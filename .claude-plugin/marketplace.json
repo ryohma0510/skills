@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.7.1"
+    "version": "1.8.0"
   },
   "plugins": [
     {
@@ -29,6 +29,7 @@
       "skills": [
         "./skills/code-comments",
         "./skills/code-review",
+        "./skills/implement",
         "./skills/tdd",
         "./skills/test-design"
       ]
