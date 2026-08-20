@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S16). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S17). Stdlib only, manual invocation."""
 
 import json
 import re
@@ -241,6 +241,33 @@ def check_symlink(name, findings):
         findings.append(Finding("S11", "error", f".claude/skills/{name} が存在しません"))
 
 
+def check_stray_claude_skills(findings):
+    """.claude/skills/ 配下の各エントリが skills/<name> への正しいシンボリックリンクかを検査する。
+
+    check_symlink() は skills/*/SKILL.md から見て順方向(スキルが増えたらリンクも増えているか)を検査するのに対し、
+    こちらは .claude/skills/ 側から見て逆方向(実体を置くべき場所を間違えていないか)を検査する。
+    """
+    if not CLAUDE_SKILLS_DIR.is_dir():
+        return
+    for entry in sorted(CLAUDE_SKILLS_DIR.iterdir()):
+        name = entry.name
+        if not entry.is_symlink():
+            findings.append(
+                Finding(
+                    "S17",
+                    "error",
+                    f".claude/skills/{name} がシンボリックリンクではありません"
+                    f"(実体は skills/{name} に置き、.claude/skills/{name} はそこへのリンクにすること)",
+                )
+            )
+            continue
+        target = SKILLS_DIR / name
+        if entry.resolve() != target.resolve():
+            findings.append(Finding("S17", "error", f".claude/skills/{name} のリンク先が skills/{name} と一致しません"))
+        elif not (target / "SKILL.md").exists():
+            findings.append(Finding("S17", "error", f".claude/skills/{name} のリンク先 skills/{name} に SKILL.md がありません"))
+
+
 def check_marketplace(name, findings):
     if not MARKETPLACE_JSON.exists():
         findings.append(Finding("S12", "error", "marketplace.jsonが見つかりません"))
@@ -335,13 +362,25 @@ def check_skill(skill_dir):
 
 
 def main():
+    total_errors = 0
+    total_warnings = 0
+
+    stray_findings = []
+    check_stray_claude_skills(stray_findings)
+    if stray_findings:
+        print("=== .claude/skills ===")
+        for finding in stray_findings:
+            print(f"  [{finding.check_id}] {finding.severity}: {finding.message}")
+            if finding.severity == "error":
+                total_errors += 1
+            else:
+                total_warnings += 1
+        print()
+
     skill_dirs = sorted(p.parent for p in SKILLS_DIR.glob("*/SKILL.md"))
     if not skill_dirs:
         print(f"{SKILLS_DIR} 配下に SKILL.md が見つかりません")
-        return 0
-
-    total_errors = 0
-    total_warnings = 0
+        return 1 if total_errors else 0
 
     for skill_dir in skill_dirs:
         findings = check_skill(skill_dir)
