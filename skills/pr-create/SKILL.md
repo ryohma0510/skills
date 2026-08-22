@@ -24,34 +24,34 @@ git push -u origin $(git branch --show-current)
 
 完了条件: リモートのブランチが、PR に含めたいコミットをすべて含んでいる。
 
-## 2. base ブランチの決定
+## 2. 既存 PR の確認
 
-引数で base が指定されていればそれを使い、このステップを終える。
-
-指定がなければ、リモートを最新化して直接の親ブランチを推定する。
+このブランチに PR が既にあるかを見る。
 
 ```bash
-git fetch --prune
+gh pr view --json number,url,baseRefName,isDraft
 ```
 
-候補を一覧する（自分自身は除外）。
+- PR がある → **更新モード**。base は既存 PR の `baseRefName` を使い、次のステップを飛ばす。最後は本文の差し替えになる。
+- PR がない（コマンドが失敗する） → **新規モード**。次のステップへ進む。
+
+完了条件: 更新モードか新規モードかが決まり、更新モードなら対象の PR 番号を控えている。
+
+## 3. base ブランチの決定
+
+新規モードでのみ行う。引数で base が指定されていればそれを使い、このステップを終える。
+
+指定がなければ、このスキルに同梱したスクリプトで直接の親ブランチを推定する。パスは SKILL.md からの相対で scripts/detect-base.sh になる。
 
 ```bash
-git branch -r --format='%(refname:short)' | sed 's|origin/||' \
-  | grep -E "^(develop|topic|release)/" | grep -v "^$(git branch --show-current)$"
+bash <このスキルのディレクトリ>/scripts/detect-base.sh
 ```
 
-各候補について merge-base から HEAD までのコミット数を数え、最小の候補を親とみなす。候補がなければ `main` をデフォルトにする。
+出力された候補をユーザーに提示して確認する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
 
-```bash
-git rev-list --count $(git merge-base HEAD origin/<candidate>)..HEAD
-```
+完了条件: base が1つに確定している。
 
-デフォルト候補をユーザーに提示して確認する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
-
-完了条件: ユーザーの回答で base が1つに確定している。
-
-## 3. diff の取得
+## 4. diff の取得
 
 base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。
 
@@ -63,11 +63,11 @@ git diff origin/<base>...HEAD
 
 完了条件: 全変更ファイルの diff を読み終えている。
 
-## 4. タイトルの生成
+## 5. タイトルの生成
 
 diff の内容から日本語で生成する。50文字以内を目安に、変更の目的と内容を端的に表す。
 
-## 5. テンプレートの選択
+## 6. テンプレートの選択
 
 リポジトリの PR テンプレートを探す。
 
@@ -83,7 +83,7 @@ ls .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
 
 完了条件: 使うテンプレートが1つに決まっている。
 
-## 6. Description の生成
+## 7. Description の生成
 
 diff を分析し、日本語の description を書く。設計判断や背景の「なぜ」を軸にし、コードの羅列ではなく意図が伝わる記述にする。テンプレートと各セクションの書き方は [`references/description.md`](references/description.md) を読んでから書く。リポジトリのテンプレートを選んだ場合は、そちらの見出しを骨格にし、ガイドラインはテンプレートの指示がない部分にだけ適用する。
 
@@ -99,14 +99,22 @@ mktemp -d
 
 完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文がファイルに保存され、`doc-trim` を適用済みである。
 
-## 7. PR の作成
+## 8. PR の作成 / 更新
 
-draft で作成する。
+新規モードでは draft で作成する。
 
 ```bash
 gh pr create --draft --base <base> --title "<title>" --body-file <本文ファイルの実パス> --assignee @me
 ```
 
-## 8. 結果の報告
+更新モードでは既存 PR のタイトルと本文を差し替える。
 
-PR URL、base ブランチ、タイトルを報告する。
+```bash
+gh pr edit <PR番号> --title "<title>" --body-file <本文ファイルの実パス>
+```
+
+完了条件: PR が作成または更新され、その URL が得られている。
+
+## 9. 結果の報告
+
+PR URL、base ブランチ、タイトル、新規作成か更新かを報告する。
