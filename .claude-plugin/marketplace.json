@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.17.0"
+    "version": "1.18.0"
   },
   "plugins": [
     {
@@ -22,6 +22,7 @@
         "./skills/handoff",
         "./skills/implement",
         "./skills/pr-create",
+        "./skills/reply-review",
         "./skills/review",
         "./skills/review-loop",
         "./skills/skill-design-principles",
