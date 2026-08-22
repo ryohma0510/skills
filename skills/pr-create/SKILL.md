@@ -30,7 +30,7 @@ git fetch --prune
 
 ```bash
 git branch -r --format='%(refname:short)' | sed 's|origin/||' \
-  | grep -E "^(develop|topic)/" | grep -v "^$(git branch --show-current)$"
+  | grep -E "^(develop|topic|release)/" | grep -v "^$(git branch --show-current)$"
 ```
 
 各候補について merge-base から HEAD までのコミット数を数え、最小の候補を親とみなす。候補がなければ `main` をデフォルトにする。
