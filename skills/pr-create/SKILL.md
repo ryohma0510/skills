@@ -53,10 +53,12 @@ git rev-list --count $(git merge-base HEAD origin/<candidate>)..HEAD
 
 ## 3. diff の取得
 
+base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。
+
 ```bash
-git log <base>...HEAD --oneline
-git diff <base>...HEAD --stat
-git diff <base>...HEAD
+git log origin/<base>...HEAD --oneline
+git diff origin/<base>...HEAD --stat
+git diff origin/<base>...HEAD
 ```
 
 完了条件: 全変更ファイルの diff を読み終えている。
@@ -88,19 +90,21 @@ diff を分析し、日本語の description を書く。設計判断や背景�
 description を書き上げたら、リポジトリ外の一時ファイルに保存する（`git status` を汚さないため）。
 
 ```bash
-BODY="$(mktemp -d)/pr-body.md"
+mktemp -d
 ```
+
+出力されたディレクトリ配下に pr-body.md として本文を書き出す。シェル変数はコマンド間で引き継がれないため、以降のステップでは書き出した実パスをそのまま書く。
 
 保存したパスを渡して Skill ツールで `doc-trim` を発動する。以降のステップは、このファイルの内容を PR 本文として扱う。
 
-完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文が `$BODY` に保存され、`doc-trim` を適用済みである。
+完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文がファイルに保存され、`doc-trim` を適用済みである。
 
 ## 7. PR の作成
 
 draft で作成する。
 
 ```bash
-gh pr create --draft --base <base> --title "<title>" --body-file "$BODY" --assignee @me
+gh pr create --draft --base <base> --title "<title>" --body-file <本文ファイルの実パス> --assignee @me
 ```
 
 ## 8. 結果の報告
