@@ -72,7 +72,6 @@ skills/
 | スキル名 | 概要 |
 | --- | --- |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
-| [code-review](skills/code-review/SKILL.md) | diff や checkout 済みの他人の PR を設計品質の観点でレビューする |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [doc-trim](skills/doc-trim/SKILL.md) | Markdown から装飾文言(煽り・脅し、唯一の記述への強調、意味を変えない強度副詞など)を削る。新規執筆時にも常に適用する |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |

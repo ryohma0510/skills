@@ -1,5 +1,5 @@
 $schema: https://microsoft.github.io/apm/specs/schemas/manifest-v0.1.schema.json
 name: ryohma0510-skills
-version: "1.15.0"
+version: "1.16.0"
 description: My personal Claude Skills collection
 author: ryohma0510
