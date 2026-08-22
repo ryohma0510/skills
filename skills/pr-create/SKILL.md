@@ -10,11 +10,19 @@ argument-hint: "base ブランチ（省略時は自動推定）"
 
 ## 1. push
 
+未コミットの変更を確認する。
+
+```bash
+git status --porcelain
+```
+
+出力があれば、コミットしてから進めるか現状のまま push するかをユーザーに聞く。
+
 ```bash
 git push -u origin $(git branch --show-current)
 ```
 
-完了条件: リモートに現在のブランチが存在する。
+完了条件: リモートのブランチが、PR に含めたいコミットをすべて含んでいる。
 
 ## 2. base ブランチの決定
 
@@ -103,7 +111,13 @@ diff を分析し、以下のテンプレートで日本語の description を�
 
 ### 全体方針
 
-description を書き上げたら、Skill ツールで `doc-trim` を発動し、生成した本文に適用してから次のステップへ進む。
+description を書き上げたら、リポジトリ外の一時ファイルに保存する（`git status` を汚さないため）。
+
+```bash
+BODY="$(mktemp -d)/pr-body.md"
+```
+
+保存したパスを渡して Skill ツールで `doc-trim` を発動する。以降のステップは、このファイルの内容を PR 本文として扱う。
 
 レビュアーが読む気を失わない簡潔さを優先する。変更ファイル・追加行数など diff から読み取れる情報は GitHub の Files Changed に任せ、description には書かない。「主な変更点」「変更一覧」「変更ファイル」といった列挙セクションも同じ理由で置かない。
 
@@ -139,14 +153,14 @@ description を書き上げたら、Skill ツールで `doc-trim` を発動し�
 
 作業中の会話で迷いが出た判断があれば、それを優先して挙げる。該当がなければセクションごと省略する。
 
-完了条件: テンプレートの各セクションが、埋まっているか意図的に省略されているかのどちらかになっている。
+完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文が `$BODY` に保存され、`doc-trim` を適用済みである。
 
 ## 7. PR の作成
 
 draft で作成する。
 
 ```bash
-gh pr create --draft --base <base> --title <title> --body <body> --assignee @me
+gh pr create --draft --base <base> --title "<title>" --body-file "$BODY" --assignee @me
 ```
 
 ## 8. 結果の報告
