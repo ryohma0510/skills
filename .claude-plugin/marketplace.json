@@ -24,6 +24,7 @@
         "./skills/pr-create",
         "./skills/reply-review",
         "./skills/review",
+        "./skills/review-loop",
         "./skills/skill-design-principles",
         "./skills/tdd",
         "./skills/test-design"
