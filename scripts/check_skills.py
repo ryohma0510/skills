@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S17). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S18). Stdlib only, manual invocation."""
 
 import json
 import re
@@ -11,6 +11,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / "skills"
 CLAUDE_SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
+APM_YML = REPO_ROOT / "apm.yml"
 README_MD = REPO_ROOT / "README.md"
 
 MAX_NAME_LEN = 64
@@ -286,6 +287,48 @@ def check_marketplace(name, findings):
     findings.append(Finding("S12", "error", f"marketplace.jsonのplugins[].skillsに '{expected}' がありません"))
 
 
+def read_apm_yml_version():
+    """apm.yml のトップレベル version を返す。無ければ None。
+
+    値が semver なら YAML パーサなしでも一意に読めるため、frontmatter と同じ素朴な行走査で済ませる。
+    """
+    for line in APM_YML.read_text(encoding="utf-8").split("\n"):
+        match = FRONTMATTER_KEY_RE.match(line)
+        if match and match.group(1) == "version":
+            value = match.group(2).strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                value = value[1:-1]
+            return value
+    return None
+
+
+def check_apm_manifest(findings):
+    """apm 配布用マニフェストの存在と、marketplace.json との version 一致を検査する (S18)。"""
+    if not APM_YML.exists():
+        findings.append(Finding("S18", "error", "apm.yml が見つかりません (apm 配布に必要)"))
+        return
+    apm_version = read_apm_yml_version()
+    if not apm_version:
+        findings.append(Finding("S18", "error", "apm.yml に version がありません"))
+        return
+    if not MARKETPLACE_JSON.exists():
+        return
+    try:
+        data = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return
+    marketplace_version = data.get("metadata", {}).get("version")
+    if marketplace_version and apm_version != marketplace_version:
+        findings.append(
+            Finding(
+                "S18",
+                "error",
+                f"apm.yml の version '{apm_version}' が marketplace.json の "
+                f"metadata.version '{marketplace_version}' と一致しません",
+            )
+        )
+
+
 def check_readme(name, findings):
     if not README_MD.exists():
         findings.append(Finding("S13", "warn", "README.mdが見つかりません"))
@@ -364,6 +407,18 @@ def check_skill(skill_dir):
 def main():
     total_errors = 0
     total_warnings = 0
+
+    repo_findings = []
+    check_apm_manifest(repo_findings)
+    if repo_findings:
+        print("=== repo ===")
+        for finding in repo_findings:
+            print(f"  [{finding.check_id}] {finding.severity}: {finding.message}")
+            if finding.severity == "error":
+                total_errors += 1
+            else:
+                total_warnings += 1
+        print()
 
     stray_findings = []
     check_stray_claude_skills(stray_findings)
