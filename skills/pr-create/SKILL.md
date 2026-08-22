@@ -18,13 +18,16 @@ git status --porcelain
 
 出力があれば、コミットしてから進めるか現状のまま push するかをユーザーに聞く。
 
+push 先は追跡先のリモートを優先し、無ければ `origin` にする。
+
 ```bash
-git push -u origin $(git branch --show-current)
+BRANCH=$(git branch --show-current)
+git push -u "$(git config --get "branch.${BRANCH}.remote" || echo origin)" "$BRANCH"
 ```
 
-リモート名が `origin` でないリポジトリでは、`git remote` の出力に合わせて読み替える。
+ここで使ったリモート名は、以降のステップで base を修飾するのに使う。
 
-完了条件: リモートのブランチが、PR に含めたいコミットをすべて含んでいる。
+完了条件: リモートのブランチが、PR に含めたいコミットをすべて含んでいて、使ったリモート名が分かっている。
 
 ## 2. 既存 PR の確認
 
@@ -34,7 +37,7 @@ git push -u origin $(git branch --show-current)
 gh pr view --json number,url,baseRefName,isDraft
 ```
 
-- PR がある → **更新モード**。base は既存 PR の `baseRefName` を使い、次のステップを飛ばす。最後は本文の差し替えになる。
+- PR がある → **更新モード**。base は既存 PR の `baseRefName`（修飾つき ref はステップ1のリモート名を冠したもの）を使い、次のステップを飛ばす。最後は本文の差し替えになる。
 - `no pull requests found` で失敗する → **新規モード**。次のステップへ進む。
 - それ以外の理由で失敗する（未認証、ネットワーク断、リポジトリ解決不能など） → モードを決められないため、エラー内容をユーザーに伝えて中断する。新規モードとして進めると、既存 PR がある場合にステップ9で衝突する。
 
@@ -42,7 +45,7 @@ gh pr view --json number,url,baseRefName,isDraft
 
 ## 3. base ブランチの決定
 
-新規モードでのみ行う。引数で base が指定されていればそれを使い、このステップを終える。
+新規モードでのみ行う。引数で base が指定されていれば、ステップ1のリモート名を冠して修飾つき ref を組み立て、このステップを終える。
 
 指定がなければ、このスキルに同梱したスクリプトで直接の親ブランチを推定する。スキルの読み込み時に提示されるベースディレクトリ（このスキルのフォルダの絶対パス）配下の scripts/detect-base.sh を実行する。
 
@@ -70,7 +73,7 @@ gh pr list --state all --limit 50 --json number,title,url,headRefName,baseRefNam
 
 ## 5. diff の取得
 
-base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。更新モードでは既存 PR の `baseRefName` に、ステップ1で push したリモート名を冠したものが対象になる。
+base のローカルブランチが無くても解決できるよう、ステップ1のリモート名で修飾した参照を使う。
 
 ```bash
 git log <remote>/<base>...HEAD --oneline
@@ -91,7 +94,7 @@ diff の内容から日本語で生成する。50文字以内を目安に、変�
 カレントディレクトリではなくリポジトリのルートを基準に探す。
 
 ```bash
-find "$(git rev-parse --show-toplevel)" -maxdepth 3 \
+find "$(git rev-parse --show-toplevel)" -maxdepth 3 -type f \
   -ipath '*pull_request_template*' -not -path '*/.git/*'
 ```
 
