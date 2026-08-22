@@ -6,32 +6,24 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.12.0"
+    "version": "1.13.0"
   },
   "plugins": [
     {
-      "name": "productivity",
+      "name": "ryohma0510-skills",
       "description": "My personal Claude Skills collection",
-      "source": "./",
-      "strict": true,
-      "skills": [
-        "./skills/copy-skill",
-        "./skills/grilling",
-        "./skills/handoff",
-        "./skills/skill-design-principles"
-      ]
-    },
-    {
-      "name": "engineering",
-      "description": "コードレビューなど、エンジニアリング関連のClaude Skills",
       "source": "./",
       "strict": true,
       "skills": [
         "./skills/code-comments",
         "./skills/code-review",
+        "./skills/copy-skill",
         "./skills/doc-trim",
+        "./skills/grilling",
+        "./skills/handoff",
         "./skills/implement",
         "./skills/review",
+        "./skills/skill-design-principles",
         "./skills/tdd",
         "./skills/test-design"
       ]
