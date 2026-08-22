@@ -69,7 +69,7 @@ ls .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
 
 見つかったテンプレートをすべて読み、どれを使うかを1回だけユーザーに聞く。選択肢は、見つかったテンプレート各ファイル（`.github/PULL_REQUEST_TEMPLATE/` に複数ある場合はファイル別に並べる）と、このスキルのテンプレート。
 
-リポジトリのテンプレートを選んだ場合は、その見出し構成を骨格にして各セクションを diff の内容で埋める。テンプレートが記入方法を明示している項目はその指示に従い、指示のない部分だけ次のステップのガイドラインを適用する。図解と末尾の `🤖 Generated with [Claude Code](https://claude.com/claude-code)` 行は、どちらのテンプレートでも入れる。
+リポジトリのテンプレートを選んだ場合は、その見出し構成を骨格にして各セクションを diff の内容で埋める。テンプレートが記入方法を明示している項目はその指示に従い、指示のない部分だけ次のステップのガイドラインを適用する。図解と末尾の `🤖 Generated with AI` 行は、どちらのテンプレートでも入れる。
 
 完了条件: 使うテンプレートが1つに決まっている。
 
@@ -98,7 +98,7 @@ diff を分析し、以下のテンプレートで日本語の description を�
 - [ ] 確認項目1
 - [ ] 確認項目2
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+🤖 Generated with AI
 ```
 
 ### 全体方針
