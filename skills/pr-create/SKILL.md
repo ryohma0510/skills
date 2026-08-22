@@ -51,7 +51,19 @@ bash <このスキルのディレクトリ>/scripts/detect-base.sh
 
 完了条件: base が1つに確定している。
 
-## 4. diff の取得
+## 4. 関連 PR の把握
+
+同じスタックに積まれた PR があるかを見る。
+
+```bash
+gh pr list --state all --limit 50 --json number,title,url,headRefName,baseRefName,state,isDraft
+```
+
+このブランチの base が別 PR の head なら、その PR がスタックの1つ下。その PR の base をさらにたどって根まで並べる。逆に、このブランチを base にしている PR があればスタックの1つ上で、そこからも同様にたどる。
+
+完了条件: スタックに属さないと判断したか、属する場合は根から先端までの PR を列挙できている。
+
+## 5. diff の取得
 
 base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。
 
@@ -63,11 +75,11 @@ git diff origin/<base>...HEAD
 
 完了条件: 全変更ファイルの diff を読み終えている。
 
-## 5. タイトルの生成
+## 6. タイトルの生成
 
 diff の内容から日本語で生成する。50文字以内を目安に、変更の目的と内容を端的に表す。
 
-## 6. テンプレートの選択
+## 7. テンプレートの選択
 
 リポジトリの PR テンプレートを探す。
 
@@ -83,7 +95,7 @@ ls .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
 
 完了条件: 使うテンプレートが1つに決まっている。
 
-## 7. Description の生成
+## 8. Description の生成
 
 diff を分析し、日本語の description を書く。設計判断や背景の「なぜ」を軸にし、コードの羅列ではなく意図が伝わる記述にする。テンプレートと各セクションの書き方は [`references/description.md`](references/description.md) を読んでから書く。リポジトリのテンプレートを選んだ場合は、そちらの見出しを骨格にし、ガイドラインはテンプレートの指示がない部分にだけ適用する。
 
@@ -99,7 +111,7 @@ mktemp -d
 
 完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文がファイルに保存され、`doc-trim` を適用済みである。
 
-## 8. PR の作成 / 更新
+## 9. PR の作成 / 更新
 
 新規モードでは draft で作成する。
 
@@ -115,6 +127,6 @@ gh pr edit <PR番号> --title "<title>" --body-file <本文ファイルの実パ
 
 完了条件: PR が作成または更新され、その URL が得られている。
 
-## 9. 結果の報告
+## 10. 結果の報告
 
 PR URL、base ブランチ、タイトル、新規作成か更新かを報告する。
