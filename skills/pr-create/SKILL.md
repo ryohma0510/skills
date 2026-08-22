@@ -39,7 +39,7 @@ git branch -r --format='%(refname:short)' | sed 's|origin/||' \
 git rev-list --count $(git merge-base HEAD origin/<candidate>)..HEAD
 ```
 
-デフォルト候補を **AskUserQuestion** で提示する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
+デフォルト候補をユーザーに提示して確認する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
 
 完了条件: ユーザーの回答で base が1つに確定している。
 
@@ -67,7 +67,7 @@ ls .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
    .github/PULL_REQUEST_TEMPLATE/ 2>/dev/null
 ```
 
-見つかったテンプレートをすべて読み、**AskUserQuestion** で1回だけ聞く。選択肢は、見つかったテンプレート各ファイル（`.github/PULL_REQUEST_TEMPLATE/` に複数ある場合はファイル別に並べる）と、このスキルのテンプレート。
+見つかったテンプレートをすべて読み、どれを使うかを1回だけユーザーに聞く。選択肢は、見つかったテンプレート各ファイル（`.github/PULL_REQUEST_TEMPLATE/` に複数ある場合はファイル別に並べる）と、このスキルのテンプレート。
 
 リポジトリのテンプレートを選んだ場合は、その見出し構成を骨格にして各セクションを diff の内容で埋める。テンプレートが記入方法を明示している項目はその指示に従い、指示のない部分だけ次のステップのガイドラインを適用する。図解と末尾の `🤖 Generated with [Claude Code](https://claude.com/claude-code)` 行は、どちらのテンプレートでも入れる。
 
@@ -143,9 +143,9 @@ description を書き上げたら、Skill ツールで `doc-trim` を発動し�
 
 ## 7. 承認ゲート
 
-タイトルと description の全文を **AskUserQuestion** で提示する: 「この内容で PR を作成してよいですか？ 修正したい箇所があれば指示してください」
+タイトルと description の全文をユーザーに提示する: 「この内容で PR を作成してよいですか？ 修正したい箇所があれば指示してください」
 
-修正指示があれば反映し、修正後の全文を再度 **AskUserQuestion** で提示する。これを繰り返す。
+修正指示があれば反映し、修正後の全文を再度提示する。これを繰り返す。
 
 完了条件: 直前に提示した全文に対して、ユーザーが明示的な承認（「OK」「いいよ」「作成して」等）を返している。この状態に達したときにだけ次のステップへ進む。
 
