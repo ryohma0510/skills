@@ -2,15 +2,21 @@
 
 自分が開発した Claude Skills を整理・管理するためのリポジトリ。
 
-[`npx skills`](https://github.com/vercel-labs/skills) および Claude Code のプラグイン機構の両方から利用できるように構成している。
+[apm (Agent Package Manager)](https://github.com/microsoft/apm) および Claude Code のプラグイン機構の両方から利用できるように構成している。
 
 ## インストール方法
 
-### npx skills を使う場合
+### apm を使う場合
 
 ```bash
-npx skills add ryohma0510/skills
+# リポジトリ内の全スキルを .claude/skills/ に配置する
+apm install ryohma0510/skills --target claude
+
+# 個別のスキルだけ入れる場合
+apm install ryohma0510/skills/tdd --target claude
 ```
+
+apm 自体のインストールは [apm の README](https://github.com/microsoft/apm#installation) を参照。
 
 ### Claude Code のプラグインとして使う場合
 
@@ -26,6 +32,7 @@ npx skills add ryohma0510/skills
 skills/
 ├── README.md
 ├── .gitignore
+├── apm.yml                # apm パッケージのマニフェスト
 ├── .claude-plugin/
 │   └── marketplace.json   # Claude Code プラグインとして配布するためのマニフェスト
 └── skills/
@@ -38,7 +45,8 @@ skills/
 
 - `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
-- 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[].skills` 配列にも `./skills/<skill-name>` を追記する(npx skills 側は `skills/` 配下を自動で認識するが、Claude plugin 側はこのマニフェストで明示する必要がある)。
+- 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[].skills` 配列にも `./skills/<skill-name>` を追記する(apm 側は `skills/<name>/SKILL.md` を自動で認識するが、Claude plugin 側はこのマニフェストで明示する必要がある)。
+- `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。
 
 ## スキル一覧
 
