@@ -23,8 +23,8 @@
         "./skills/handoff",
         "./skills/implement",
         "./skills/pr-create",
+        "./skills/reply-review",
         "./skills/review",
-        "./skills/review-reply",
         "./skills/skill-design-principles",
         "./skills/tdd",
         "./skills/test-design"
