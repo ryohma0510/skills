@@ -18,6 +18,20 @@ apm install ryohma0510/skills/tdd --target claude
 
 apm 自体のインストールは [apm の README](https://github.com/microsoft/apm#installation) を参照。
 
+#### 共通ルールを `~/.claude/CLAUDE.md` として配る
+
+`.apm/instructions/` に置いた instruction のうち `applyTo` を持たないものは、
+user scope でインストールすると `~/.claude/CLAUDE.md` (または `$CLAUDE_CONFIG_DIR/CLAUDE.md`) に展開される。
+全セッションのコンテキストに載るため、会話の返答にも適用される。
+
+```bash
+apm install ryohma0510/skills --target claude --global
+```
+
+生成されたファイルには APM のマーカーが入り、次回以降の install で上書きされる。
+マーカーのない手書きの `CLAUDE.md` が既にある場合は `skipped-hand-authored` となり上書きされないので、
+このリポジトリで管理するなら手書きの `CLAUDE.md` は置かない。
+
 ### Claude Code のプラグインとして使う場合
 
 ```
@@ -33,6 +47,8 @@ skills/
 ├── README.md
 ├── .gitignore
 ├── apm.yml                # apm パッケージのマニフェスト
+├── .apm/
+│   └── instructions/      # 常時適用のルール。applyTo なしで ~/.claude/CLAUDE.md に展開される
 ├── .claude-plugin/
 │   └── marketplace.json   # Claude Code プラグインとして配布するためのマニフェスト
 └── skills/
@@ -46,6 +62,7 @@ skills/
 - `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
 - 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[].skills` 配列にも `./skills/<skill-name>` を追記する(apm 側は `skills/<name>/SKILL.md` を自動で認識するが、Claude plugin 側はこのマニフェストで明示する必要がある)。
+- `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと `.claude/rules/<name>.md` への path 限定ルールになり、CLAUDE.md には載らない。
 - `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。
 
 ## スキル一覧
