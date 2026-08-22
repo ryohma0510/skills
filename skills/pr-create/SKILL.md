@@ -22,6 +22,8 @@ git status --porcelain
 git push -u origin $(git branch --show-current)
 ```
 
+リモート名が `origin` でないリポジトリでは、`git remote` の出力に合わせて読み替える。
+
 完了条件: リモートのブランチが、PR に含めたいコミットをすべて含んでいる。
 
 ## 2. 既存 PR の確認
@@ -33,7 +35,8 @@ gh pr view --json number,url,baseRefName,isDraft
 ```
 
 - PR がある → **更新モード**。base は既存 PR の `baseRefName` を使い、次のステップを飛ばす。最後は本文の差し替えになる。
-- PR がない（コマンドが失敗する） → **新規モード**。次のステップへ進む。
+- `no pull requests found` で失敗する → **新規モード**。次のステップへ進む。
+- それ以外の理由で失敗する（未認証、ネットワーク断、リポジトリ解決不能など） → モードを決められないため、エラー内容をユーザーに伝えて中断する。新規モードとして進めると、既存 PR がある場合にステップ9で衝突する。
 
 完了条件: 更新モードか新規モードかが決まり、更新モードなら対象の PR 番号を控えている。
 
@@ -47,9 +50,11 @@ gh pr view --json number,url,baseRefName,isDraft
 bash "$SKILL_BASE_DIR/scripts/detect-base.sh"   # $SKILL_BASE_DIR は上記ベースディレクトリに置き換える
 ```
 
+スクリプトは `origin/develop/a` のようにリモート修飾つきの ref を1行返す。この値を diff の取得に使い、PR 作成時にはリモート名の部分を除いたブランチ名を渡す。
+
 出力された候補をユーザーに提示して確認する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
 
-完了条件: base が1つに確定している。
+完了条件: base が1つに確定し、その修飾つき ref とブランチ名の両方が分かっている。
 
 ## 4. 関連 PR の把握
 
@@ -65,12 +70,12 @@ gh pr list --state all --limit 50 --json number,title,url,headRefName,baseRefNam
 
 ## 5. diff の取得
 
-base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。
+base のローカルブランチが無くても解決できるよう、リモート追跡参照を使う。更新モードでは既存 PR の `baseRefName` に、ステップ1で push したリモート名を冠したものが対象になる。
 
 ```bash
-git log origin/<base>...HEAD --oneline
-git diff origin/<base>...HEAD --stat
-git diff origin/<base>...HEAD
+git log <remote>/<base>...HEAD --oneline
+git diff <remote>/<base>...HEAD --stat
+git diff <remote>/<base>...HEAD
 ```
 
 完了条件: 全変更ファイルの diff を読み終えている。
@@ -117,7 +122,7 @@ mktemp -d
 新規モードでは draft で作成する。
 
 ```bash
-gh pr create --draft --base <base> --title "<title>" --body-file <本文ファイルの実パス> --assignee @me
+gh pr create --draft --base <リモート名を除いた base> --title "<title>" --body-file <本文ファイルの実パス> --assignee @me
 ```
 
 更新モードでは既存 PR のタイトルと本文を差し替える。
