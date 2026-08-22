@@ -1,6 +1,7 @@
 ---
 name: reply-review
 description: PR に付いたレビューコメントに対応するときに使う。「レビューコメントに対応して」「指摘を直して」と言われたとき、他のスキルがレビューコメントへの対応を必要とするときにも使う。
+argument-hint: "対象 PR（省略時は現在のブランチの PR）"
 ---
 
 # レビューコメント対応
@@ -41,24 +42,44 @@ query($owner:String!,$repo:String!,$pr:Int!){
 }' -F owner=<owner> -F repo=<repo> -F pr=<number>
 ```
 
-スレッドは最初のコメントだけを指摘として扱わない。`comments.nodes` に並ぶ返信まで含めて1件の指摘であり、指摘の結論は後続の返信にあることがある（指摘者が自分で撤回している、条件を足している、別の箇所を追加で挙げている）。
+`comments.nodes` 全体で1件の指摘として扱う。指摘の結論は後続の返信にあることがある（指摘者が自分で撤回している、条件を足している、別の箇所を追加で挙げている）。
 
-`hasNextPage` が true なら `endCursor` を `after` に渡して続きを取る。スレッド側（`reviewThreads`）とコメント側（`comments`）のどちらにもあり、両方を最後まで辿る。コメント側の取りこぼしは、そのまま指摘の読み違いになる。
+スレッド側の `hasNextPage` が true なら、`endCursor` を `reviewThreads(first:100, after:$cursor)` に渡して続きを取る。
+
+コメント側のカーソルはスレッドごとに異なるため、外側のクエリでは辿れない。`comments.pageInfo.hasNextPage` が true のスレッドは、その thread ID を指定して個別に続きを取る。
+
+```bash
+gh api graphql -f query='
+query($threadId:ID!,$cursor:String!){
+  node(id:$threadId){
+    ... on PullRequestReviewThread{
+      comments(first:100, after:$cursor){
+        pageInfo{hasNextPage endCursor}
+        nodes{author{login,__typename} body url createdAt}
+      }
+    }
+  }
+}' -f threadId=<thread id> -f cursor=<endCursor>
+```
 
 次のスレッドは対象外にする。
 
 - `isResolved` が true
 - `comments.nodes` の最後が自分の返信であるもの。前回の実行で対応済みで、指摘者からの反応がまだない。
 
-スレッドに紐づかないレビュー本文や PR コメントも指摘を含むことがある。次で拾い、自分の返信より後に投稿されたものを対象に加える。
+スレッドに紐づかないレビュー本文や PR コメントも指摘を含むことがある。次で拾う。
 
 ```bash
 gh pr view <number> --json reviews,comments
 ```
 
+対象にするのは、本文が指摘を含むもののうち、自分の直近の返信より後に投稿されたもの。時刻は `reviews` が `submittedAt`、`comments` が `createdAt` を見る。自分の返信がまだ無ければ全件が対象になる。本文が空のレビュー（APPROVED だけのものなど）と、CI・通知の投稿は除く。
+
 これらは thread ID を持たないため、返信のみを行う（ステップ5参照）。
 
-完了条件: 対象のスレッドとスレッド外のコメントが列挙でき、それぞれの ID・ファイル・行・投稿者と、スレッド内の全コメントの本文が分かっている。除外したスレッドは、除外の理由（resolve 済み / 返信済み）が言える。
+対象がスレッド・スレッド外ともに0件なら、ステップ7の報告だけを行って終える。
+
+完了条件: 対象が列挙できている。スレッドは ID・ファイル・行・投稿者と全コメントの本文が、スレッド外のコメントは投稿者・本文・投稿時刻が分かっている。除外したスレッドは、除外の理由（resolve 済み / 返信済み）が言える。
 
 ## 2. 分類
 
@@ -83,8 +104,7 @@ gh pr view <number> --json reviews,comments
 探す順序は、同じファイルの他の箇所 → この PR の差分に含まれる他のファイル → リポジトリ全体。差分はステップ1の baseRefName を、追跡先のリモート（無ければ `origin`）で修飾して取る。
 
 ```bash
-REMOTE=$(git config --get "branch.$(git branch --show-current).remote" || echo origin)
-git diff "$REMOTE/<baseRefName>...HEAD"
+git diff "$(git config --get "branch.$(git branch --show-current).remote" || echo origin)/<baseRefName>...HEAD"
 ```
 
 検索の手がかりは指摘の性質に合わせる。命名やAPI誤用なら識別子で grep、パターンの誤りなら同じ構文の出現箇所、抜けている処理なら対になる処理の呼び出し箇所を探す。
@@ -104,10 +124,16 @@ git diff "$REMOTE/<baseRefName>...HEAD"
 
 指摘ごとにコミットを分けると、返信でその指摘の修正だけを指せる。まとめて1コミットにした場合は、そのコミットを全件の返信で指す。
 
-修正できたらコミットして push し、返信に貼るコミットの URL を控える。
+修正に入る前に、今の HEAD を控えておく。ここが、この実行で作ったコミットの範囲の起点になる。
 
 ```bash
-git log <push した範囲> --format='https://github.com/<owner>/<repo>/commit/%H %s'
+git rev-parse HEAD
+```
+
+修正できたらコミットして push し、返信に貼るコミットの URL を組み立てる。ホストは `github.com` 決め打ちにせず、ステップ1で取得した PR の URL から `/pull/<number>` を落とした部分を使う（GitHub Enterprise でも正しい URL になる）。
+
+```bash
+git log <控えた SHA>..HEAD --format='<PR の URL から /pull/ 以降を落としたもの>/commit/%H %s'
 ```
 
 修正で設計判断や動作確認の内容が変わったなら、Skill ツールで `pr-create` を発動し、更新モードで PR 本文を最新の差分に合わせる。
@@ -116,20 +142,14 @@ git log <push した範囲> --format='https://github.com/<owner>/<repo>/commit/%
 
 ## 5. 返信
 
-スレッドごとに返信を書く。内容は次の4点に絞る。
+スレッドごとに日本語で返信を書く。内容は次の4点に絞る。
 
 - どう対応したか（対応しない場合はその理由と根拠）
 - 直した場合は、その修正を含むコミットへのリンク（ステップ4で控えた URL）。リンクの無い「直しました」は、指摘者が差分を自力で探すことになる
 - 差分外に同種箇所が見つかった場合はその場所
 - ユーザーに判断を仰いだ場合はその結果
 
-返信本文はリポジトリ外の一時ファイルに書き出す（`git status` を汚さないため）。
-
-```bash
-mktemp -d
-```
-
-出力されたディレクトリ配下に返信ごとのファイルを書き出す。シェル変数はコマンド間で引き継がれないため、以降のコマンドには書き出した実パスをそのまま書く。
+返信本文は、`mktemp -d` が出力したディレクトリ配下にスレッドごとのファイルとして書き出す（リポジトリ内に置くと `git status` を汚すため）。シェル変数はコマンド間で引き継がれないため、以降のコマンドには実パスをそのまま書く。
 
 書き出したパスを渡して Skill ツールで `doc-trim` を発動する。整形後のファイルの内容を返信本文として使う。
 
@@ -152,10 +172,12 @@ gh pr comment <number> --body-file <返信ファイルの実パス>
 
 ## 6. resolve
 
-返信済みのスレッドのうち、`comments.nodes` の先頭（指摘を起票したコメント）の投稿者が次のいずれかのものを resolve する。
+返信済みのスレッドのうち、`comments.nodes` の投稿者が全員次のいずれかであるものを resolve する。
 
 - 自分（ステップ1で取得した login）
-- Bot（`author.__typename` が `Bot`、もしくは login が `[bot]` で終わる）
+- Bot（`author.__typename` が `Bot`。`gh pr view` の JSON では login が `[bot]` で終わる）
+
+先頭のコメントだけを見ると、Bot や自分が起票したスレッドに人間が返信して論点を足している場合に、その人間の指摘ごと閉じてしまう。
 
 ```bash
 gh api graphql -f query='
