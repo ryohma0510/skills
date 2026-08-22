@@ -36,9 +36,11 @@ apm install ryohma0510/skills --target claude --global
 
 ```
 /plugin marketplace add ryohma0510/skills
-/plugin install productivity@ryohma0510-skills
-/plugin install engineering@ryohma0510-skills
+/plugin install ryohma0510-skills@ryohma0510-skills
 ```
+
+配布単位は apm パッケージと 1:1 で、プラグインは 1 つだけ。apm 側に複数プラグインへ分割する概念がないため、
+Claude Code 側もリポジトリ全体を 1 プラグインとして配る。
 
 ## ディレクトリ構成
 
@@ -61,7 +63,7 @@ skills/
 
 - `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
-- 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[].skills` 配列にも `./skills/<skill-name>` を追記する(apm 側は `skills/<name>/SKILL.md` を自動で認識するが、Claude plugin 側はこのマニフェストで明示する必要がある)。
+- 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[0].skills` 配列にも `./skills/<skill-name>` を追記する(Claude plugin 側はこのマニフェストで明示する必要がある)。
 - `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと `.claude/rules/<name>.md` への path 限定ルールになり、CLAUDE.md には載らない。
 - `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。
 
