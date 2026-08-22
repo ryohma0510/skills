@@ -41,10 +41,10 @@ gh pr view --json number,url,baseRefName,isDraft
 
 新規モードでのみ行う。引数で base が指定されていればそれを使い、このステップを終える。
 
-指定がなければ、このスキルに同梱したスクリプトで直接の親ブランチを推定する。パスは SKILL.md からの相対で scripts/detect-base.sh になる。
+指定がなければ、このスキルに同梱したスクリプトで直接の親ブランチを推定する。スキルの読み込み時に提示されるベースディレクトリ（このスキルのフォルダの絶対パス）配下の scripts/detect-base.sh を実行する。
 
 ```bash
-bash <このスキルのディレクトリ>/scripts/detect-base.sh
+bash "$SKILL_BASE_DIR/scripts/detect-base.sh"   # $SKILL_BASE_DIR は上記ベースディレクトリに置き換える
 ```
 
 出力された候補をユーザーに提示して確認する: 「base ブランチは `<候補>` でよいですか？ 別のブランチを指定する場合は入力してください」
@@ -83,10 +83,11 @@ diff の内容から日本語で生成する。50文字以内を目安に、変�
 
 リポジトリの PR テンプレートを探す。
 
+カレントディレクトリではなくリポジトリのルートを基準に探す。
+
 ```bash
-ls .github/pull_request_template.md .github/PULL_REQUEST_TEMPLATE.md \
-   PULL_REQUEST_TEMPLATE.md docs/pull_request_template.md \
-   .github/PULL_REQUEST_TEMPLATE/ 2>/dev/null
+find "$(git rev-parse --show-toplevel)" -maxdepth 3 \
+  -ipath '*pull_request_template*' -not -path '*/.git/*'
 ```
 
 見つかったテンプレートをすべて読み、どれを使うかを1回だけユーザーに聞く。選択肢は、見つかったテンプレート各ファイル（`.github/PULL_REQUEST_TEMPLATE/` に複数ある場合はファイル別に並べる）と、このスキルのテンプレート。
