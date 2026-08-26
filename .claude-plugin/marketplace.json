@@ -17,7 +17,6 @@
       "skills": [
         "./skills/code-comments",
         "./skills/copy-skill",
-        "./skills/doc-trim",
         "./skills/grilling",
         "./skills/handoff",
         "./skills/implement",
@@ -27,7 +26,9 @@
         "./skills/review-loop",
         "./skills/skill-design-principles",
         "./skills/tdd",
-        "./skills/test-design"
+        "./skills/test-design",
+        "./skills/trim-ai-smell",
+        "./skills/trim-session-context"
       ]
     }
   ]
