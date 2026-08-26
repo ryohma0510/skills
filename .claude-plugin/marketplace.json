@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.18.1"
+    "version": "1.20.0"
   },
   "plugins": [
     {
@@ -17,7 +17,6 @@
       "skills": [
         "./skills/code-comments",
         "./skills/copy-skill",
-        "./skills/doc-trim",
         "./skills/grilling",
         "./skills/handoff",
         "./skills/implement",
@@ -25,9 +24,12 @@
         "./skills/reply-review",
         "./skills/review",
         "./skills/review-loop",
+        "./skills/sanitize-doc",
         "./skills/skill-design-principles",
         "./skills/tdd",
-        "./skills/test-design"
+        "./skills/test-design",
+        "./skills/trim-ai-smell",
+        "./skills/trim-session-context"
       ]
     }
   ]

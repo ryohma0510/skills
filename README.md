@@ -73,7 +73,6 @@ skills/
 | --- | --- |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
-| [doc-trim](skills/doc-trim/SKILL.md) | Markdown から装飾文言(煽り・脅し、唯一の記述への強調、意味を変えない強度副詞など)を削る。新規執筆時にも常に適用する |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする |
 | [implement](skills/implement/SKILL.md) | 実装作業の入り口。`tdd` でテストファーストに進め、`code-comments` でコメント品質を確認し、完了後に `pr-create` と `review-loop` を実行する |
@@ -81,9 +80,12 @@ skills/
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに対応する。対応要否の判断・同種箇所への横展開・返信・自分と Bot のスレッドの resolve まで行う |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
 | [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正するループを指定回数(既定2周)回す |
+| [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。装飾文言と会話の名残の両方をまとめて削る |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | Predictable なスキルを書くための語彙と原則。スキルの作成・編集・診断時に参照する |
 | [tdd](skills/tdd/SKILL.md) | red → green のループを回す手順。seam の確定・red・green の各ステップと vertical slice |
 | [test-design](skills/test-design/SKILL.md) | 良いテストの設計。seam でのテスト、DAMP、should/when 命名と Given-When-Then、アンチパターン、モックの境界。規約違反を検出する lint スクリプトを同梱 |
+| [trim-ai-smell](skills/trim-ai-smell/SKILL.md) | Markdown から装飾文言(煽り・脅し、唯一の記述への強調、意味を変えない強度副詞など)を削る。新規執筆時にも常に適用する |
+| [trim-session-context](skills/trim-session-context/SKILL.md) | セッション中に作った成果物から会話の名残(production residue)を削り、単独で読める完成品に仕上げ直す |
 
 ## 開発フロー
 
