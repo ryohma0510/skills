@@ -13,11 +13,9 @@
 
 （スタックに属さない単独の PR ではセクションごと省略）
 
-| 順 | PR |
-| --- | --- |
-| 1 | https://github.com/owner/repo/pull/12 |
-| 2 | https://github.com/owner/repo/pull/13 👈 このPR |
-| 3 | https://github.com/owner/repo/pull/14 |
+1. https://github.com/owner/repo/pull/12
+2. https://github.com/owner/repo/pull/13 👈 このPR
+3. https://github.com/owner/repo/pull/14
 
 ## 設計判断
 
@@ -51,8 +49,8 @@ description は最後の状態だけを書く。セッション中に方針を�
 
 ### 関連 PR
 
-- 列は `順 / PR` の2列。base・head・状態は PR ページで見られるうえ変わるため書かない。
-- PR 列には URL をそのまま貼る。GitHub がタイトルとマージ状態を補って表示するため、こちらでタイトルを書き写すと古くなる。装飾（太字やリンクテキスト）を付けるとこの展開が効かなくなる。
+- 番号付きリストで並べる。base・head・状態は PR ページで見られるうえ変わるため書かない。
+- 各項目には URL をそのまま貼る。GitHub がタイトルとマージ状態を補って表示するため、こちらでタイトルを書き写すと古くなる。装飾（太字やリンクテキスト）を付けるとこの展開が効かなくなる。
 - スタックの根（base が既定ブランチのもの）から先端へ向かって並べる。
 - このPRの行は URL の後ろに `👈 このPR` を添える。レビュアーが自分の位置を見失わないようにするための行。
 - スタックに属さない単独の PR ではセクションごと省略する。
