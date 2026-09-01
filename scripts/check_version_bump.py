@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""skills/ を変更したら marketplace.json の version が上がっているかを検査する (V01-V03)。
+"""skills/ または .apm/ を変更したら marketplace.json の version が上がっているかを検査する (V01-V03)。
 
 check_skills.py が拾えない「バージョン更新の漏れ」を、base ref との差分から決定論的に検出する。
 CI でもローカルでも同じ判定になるよう、比較対象は merge-base に固定する。
@@ -20,6 +20,7 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 MARKETPLACE_PATH = ".claude-plugin/marketplace.json"
 README_PATH = "README.md"
 SKILLS_PREFIX = "skills/"
+APM_PREFIX = ".apm/"
 
 SEMVER_RE = re.compile(r"^(\d+)\.(\d+)\.(\d+)$")
 
@@ -116,10 +117,11 @@ def main():
         touched_skills = sorted(
             {path.split("/")[1] for path in files if path.startswith(SKILLS_PREFIX) and "/" in path[len(SKILLS_PREFIX) :]}
         )
+        touched_apm = any(path.startswith(APM_PREFIX) for path in files)
 
-        if not touched_skills:
+        if not touched_skills and not touched_apm:
             print(f"base: {resolved_base} ({merge_base[:9]})")
-            print("skills/ に変更がないため version チェックはスキップします")
+            print("skills/ と .apm/ に変更がないため version チェックはスキップします")
             return 0
 
         head_version = read_version(None, MARKETPLACE_PATH)
@@ -141,11 +143,17 @@ def main():
 
         if head_tuple is not None and base_tuple is not None:
             if head_tuple == base_tuple:
+                changed = []
+                if touched_skills:
+                    changed.append(f"スキル: {', '.join(touched_skills)}")
+                if touched_apm:
+                    changed.append(".apm/")
                 errors.append(
                     (
                         "V01",
-                        f"skills/ を変更しているのに version が {base_version} のまま据え置かれています "
-                        f"(変更されたスキル: {', '.join(touched_skills)})",
+                        "パッケージ内容を変更しているのに version が "
+                        f"{base_version} のまま据え置かれています "
+                        f"(変更: {', '.join(changed)})",
                     )
                 )
             elif head_tuple < base_tuple:
@@ -165,7 +173,10 @@ def main():
         return 2
 
     print(f"base: {resolved_base} ({merge_base[:9]})")
-    print(f"変更されたスキル: {', '.join(touched_skills)}")
+    if touched_skills:
+        print(f"変更されたスキル: {', '.join(touched_skills)}")
+    if touched_apm:
+        print("変更された .apm/: yes")
     print(f"version: {base_version} -> {head_version}")
     for check_id, message in errors:
         print(f"  [{check_id}] error: {message}")

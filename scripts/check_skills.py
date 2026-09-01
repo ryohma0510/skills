@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S18). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
 
 import json
 import re
@@ -13,6 +13,14 @@ CLAUDE_SKILLS_DIR = REPO_ROOT / ".claude" / "skills"
 MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 APM_YML = REPO_ROOT / "apm.yml"
 README_MD = REPO_ROOT / "README.md"
+APM_INSTRUCTIONS_DIR = REPO_ROOT / ".apm" / "instructions"
+APM_HOOKS_DIR = REPO_ROOT / ".apm" / "hooks"
+PLUGIN_ROOT_TOKENS = (
+    "${PLUGIN_ROOT}",
+    "${CLAUDE_PLUGIN_ROOT}",
+    "${CURSOR_PLUGIN_ROOT}",
+    "${KIRO_PLUGIN_ROOT}",
+)
 
 MAX_NAME_LEN = 64
 MAX_DESCRIPTION_LEN = 1024
@@ -302,6 +310,90 @@ def read_apm_yml_version():
     return None
 
 
+def check_apm_instructions(findings):
+    """`.apm/instructions/*.instructions.md` の frontmatter 規約を検査する (S19)。
+
+    このリポジトリの instruction は user scope のルートコンテキスト
+    (`~/.claude/CLAUDE.md` / `~/.cursor/AGENTS.md`) に載せる前提なので、
+    `applyTo` があると path 限定ルールになり意図した場所に届かない。
+    """
+    if not APM_INSTRUCTIONS_DIR.is_dir():
+        return
+    files = sorted(APM_INSTRUCTIONS_DIR.glob("*.instructions.md"))
+    for path in files:
+        rel = path.relative_to(REPO_ROOT).as_posix()
+        text = path.read_text(encoding="utf-8")
+        frontmatter, _body = parse_frontmatter(text)
+        description = frontmatter.get("description", "")
+        if not description.strip():
+            findings.append(Finding("S19", "error", f"{rel} に description がないか空です"))
+        if "applyTo" in frontmatter:
+            findings.append(
+                Finding(
+                    "S19",
+                    "error",
+                    f"{rel} に applyTo があります"
+                    "（このリポジトリでは description のみ。"
+                    "applyTo があるとルートコンテキストに載らない）",
+                )
+            )
+
+
+def iter_hook_commands(obj):
+    """フック JSON から command / bash の文字列値を拾う。"""
+    if isinstance(obj, dict):
+        for key, value in obj.items():
+            if key in ("command", "bash") and isinstance(value, str):
+                yield value
+            else:
+                yield from iter_hook_commands(value)
+    elif isinstance(obj, list):
+        for item in obj:
+            yield from iter_hook_commands(item)
+
+
+def hook_script_candidates(command, hook_file):
+    """フック command 文字列から、リポジトリ内のスクリプト候補パスを返す。"""
+    stripped = command.strip().strip("'").strip('"')
+    for token in PLUGIN_ROOT_TOKENS:
+        stripped = stripped.replace(token, str(REPO_ROOT))
+    first = stripped.split()[0] if stripped else ""
+    if not first:
+        return []
+    looks_like_path = first.startswith(("./", "/", ".")) or first.endswith(".sh")
+    if not looks_like_path:
+        return []
+    path = Path(first)
+    if path.is_absolute():
+        return [path]
+    return [hook_file.parent / path, REPO_ROOT / path]
+
+
+def check_apm_hooks(findings):
+    """`.apm/hooks/*.json` がパースでき、参照スクリプトが存在することを検査する (S20)。"""
+    if not APM_HOOKS_DIR.is_dir():
+        return
+    for path in sorted(APM_HOOKS_DIR.glob("*.json")):
+        rel = path.relative_to(REPO_ROOT).as_posix()
+        try:
+            data = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            findings.append(Finding("S20", "error", f"{rel} のパースに失敗しました: {exc}"))
+            continue
+        for command in iter_hook_commands(data):
+            candidates = hook_script_candidates(command, path)
+            if not candidates:
+                continue
+            if not any(candidate.exists() for candidate in candidates):
+                findings.append(
+                    Finding(
+                        "S20",
+                        "error",
+                        f"{rel} の command が参照するスクリプトが見つかりません: {command}",
+                    )
+                )
+
+
 def check_apm_manifest(findings):
     """apm 配布用マニフェストの存在と、marketplace.json との version 一致を検査する (S18)。"""
     if not APM_YML.exists():
@@ -410,6 +502,8 @@ def main():
 
     repo_findings = []
     check_apm_manifest(repo_findings)
+    check_apm_instructions(repo_findings)
+    check_apm_hooks(repo_findings)
     if repo_findings:
         print("=== repo ===")
         for finding in repo_findings:

@@ -18,19 +18,30 @@ apm install ryohma0510/skills/tdd --target claude
 
 apm 自体のインストールは [apm の README](https://github.com/microsoft/apm#installation) を参照。
 
-#### 共通ルールを `~/.claude/CLAUDE.md` として配る
+#### 共通ルールを user scope のルートコンテキストに配る
 
 `.apm/instructions/` に置いた instruction のうち `applyTo` を持たないものは、
-user scope でインストールすると `~/.claude/CLAUDE.md` (または `$CLAUDE_CONFIG_DIR/CLAUDE.md`) に展開される。
-全セッションのコンテキストに載るため、会話の返答にも適用される。
+グローバルインストールのあと `apm compile --global` でルートコンテキストに展開される。
+
+- Claude Code: `~/.claude/CLAUDE.md`（または `$CLAUDE_CONFIG_DIR/CLAUDE.md`）
+- Cursor: `~/.cursor/AGENTS.md`
 
 ```bash
-apm install ryohma0510/skills --target claude --global
+apm install ryohma0510/skills --target claude,cursor --global
+apm compile --global
 ```
 
-生成されたファイルには APM のマーカーが入り、次回以降の install で上書きされる。
-マーカーのない手書きの `CLAUDE.md` が既にある場合は `skipped-hand-authored` となり上書きされないので、
-このリポジトリで管理するなら手書きの `CLAUDE.md` は置かない。
+`apm install -g` だけではルートコンテキストは書かれない。instruction を載せるには `apm compile --global` が要る。
+
+生成されたファイルには APM のマーカーが入り、次回以降の compile で上書きされる。
+マーカーのない手書きの `CLAUDE.md` / `AGENTS.md` が既にある場合は上書きされないので、
+このリポジトリで管理するなら手書きのルートコンテキストは置かない。
+
+いま入っている常時適用ルール:
+
+- `plain-text-questions` — 質問はチャット本文にプレーンテキストで書く。Claude Code の `AskUserQuestion` と Cursor の `AskQuestion`（Question UI）は使わない。
+
+Claude Code では、同じ内容を PreToolUse フックでも遮断する。`apm install --target claude --global` が `~/.claude/settings.json` にマージし、`AskUserQuestion` の呼び出しを拒否してチャット本文へ誘導する。Cursor の Question UI にはフックが発火しないので、無効化は instruction に頼る。
 
 ### Claude Code のプラグインとして使う場合
 
@@ -41,6 +52,7 @@ apm install ryohma0510/skills --target claude --global
 
 配布単位は apm パッケージと 1:1 で、プラグインは 1 つだけ。apm 側に複数プラグインへ分割する概念がないため、
 Claude Code 側もリポジトリ全体を 1 プラグインとして配る。
+プラグイン経路はスキルだけを配る。instruction とフックは apm 経由で入れる。
 
 ## ディレクトリ構成
 
@@ -50,7 +62,8 @@ skills/
 ├── .gitignore
 ├── apm.yml                # apm パッケージのマニフェスト
 ├── .apm/
-│   └── instructions/      # 常時適用のルール。applyTo なしで ~/.claude/CLAUDE.md に展開される
+│   ├── instructions/      # 常時適用のルール。applyTo なし。apm compile --global でルートコンテキストへ
+│   └── hooks/             # Claude Code の PreToolUse。apm install が settings.json にマージする
 ├── .claude-plugin/
 │   └── marketplace.json   # Claude Code プラグインとして配布するためのマニフェスト
 └── skills/
@@ -64,8 +77,9 @@ skills/
 - `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
 - 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[0].skills` 配列にも `./skills/<skill-name>` を追記する(Claude plugin 側はこのマニフェストで明示する必要がある)。
-- `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと `.claude/rules/<name>.md` への path 限定ルールになり、CLAUDE.md には載らない。
-- `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。
+- `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと path 限定ルールになり、ルートコンテキストには載らない(`scripts/check_skills.py` の S19 が検査する)。
+- `.apm/hooks/*.json` の command が指すスクリプトは同ディレクトリに置く(`scripts/check_skills.py` の S20 が検査する)。
+- `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。skills/ または .apm/ を変えたら version を上げる。
 
 ## スキル一覧
 
