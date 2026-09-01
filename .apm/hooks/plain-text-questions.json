@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "AskUserQuestion|AskQuestion",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./plain-text-questions.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
