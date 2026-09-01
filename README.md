@@ -18,30 +18,28 @@ apm install ryohma0510/skills/tdd --target claude
 
 apm 自体のインストールは [apm の README](https://github.com/microsoft/apm#installation) を参照。
 
-#### 共通ルールを user scope のルートコンテキストに配る
+#### 共通ルールを user scope に配る
 
 `.apm/instructions/` に置いた instruction のうち `applyTo` を持たないものは、
-グローバルインストールのあと `apm compile --global` でルートコンテキストに展開される。
-
-- Claude Code: `~/.claude/CLAUDE.md`（または `$CLAUDE_CONFIG_DIR/CLAUDE.md`）
-- Cursor: `~/.cursor/AGENTS.md`
+グローバルインストールのあと `apm compile --global` で Claude Code のルートコンテキストに展開される。
 
 ```bash
-apm install ryohma0510/skills --target claude,cursor --global
+apm install ryohma0510/skills --target claude --global
 apm compile --global
 ```
 
-`apm install -g` だけではルートコンテキストは書かれない。instruction を載せるには `apm compile --global` が要る。
+- Claude Code: `~/.claude/CLAUDE.md`（または `$CLAUDE_CONFIG_DIR/CLAUDE.md`）。`apm install -g` だけではこのファイルは書かれない。
+- Cursor: ユーザー全体に効くファイル配置はない。同じ文面を Cursor Settings → Rules（User Rules）に入れる。プロジェクト単位ならルートの `AGENTS.md` に書く。
 
-生成されたファイルには APM のマーカーが入り、次回以降の compile で上書きされる。
-マーカーのない手書きの `CLAUDE.md` / `AGENTS.md` が既にある場合は上書きされないので、
+生成された `CLAUDE.md` には APM のマーカーが入り、次回以降の compile で上書きされる。
+マーカーのない手書きの `CLAUDE.md` が既にある場合は上書きされないので、
 このリポジトリで管理するなら手書きのルートコンテキストは置かない。
 
 いま入っている常時適用ルール:
 
 - `plain-text-questions` — 質問はチャット本文にプレーンテキストで書く。Claude Code の `AskUserQuestion` と Cursor の `AskQuestion`（Question UI）は使わない。
 
-Claude Code では、同じ内容を PreToolUse フックでも遮断する。`apm install --target claude --global` が `~/.claude/settings.json` にマージし、`AskUserQuestion` の呼び出しを拒否してチャット本文へ誘導する。Cursor の Question UI にはフックが発火しないので、無効化は instruction に頼る。
+Claude Code では、同じ内容を PreToolUse フックでも遮断する。`apm install --target claude --global` が `~/.claude/settings.json` にマージし、`AskUserQuestion` の呼び出しを拒否してチャット本文へ誘導する。Cursor の Question UI にはフックが発火せず、無効化スイッチもない。
 
 ### Claude Code のプラグインとして使う場合
 
@@ -78,7 +76,7 @@ skills/
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
 - 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[0].skills` 配列にも `./skills/<skill-name>` を追記する(Claude plugin 側はこのマニフェストで明示する必要がある)。
 - `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと path 限定ルールになり、ルートコンテキストには載らない(`scripts/check_skills.py` の S19 が検査する)。
-- `.apm/hooks/*.json` の command が指すスクリプトは同ディレクトリに置く(`scripts/check_skills.py` の S20 が検査する)。
+- `.apm/hooks/*.json` の command は `./スクリプト`（JSON と同じディレクトリ）または `${PLUGIN_ROOT}/...` の実行可能ファイルを指す(`scripts/check_skills.py` の S20 が検査する)。
 - `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。skills/ または .apm/ を変えたら version を上げる。
 
 ## スキル一覧

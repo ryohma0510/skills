@@ -2,6 +2,7 @@
 """Deterministic checks for skills/*/SKILL.md (S01-S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
 
 import json
+import os
 import re
 import sys
 from collections import Counter, namedtuple
@@ -313,8 +314,8 @@ def read_apm_yml_version():
 def check_apm_instructions(findings):
     """`.apm/instructions/*.instructions.md` の frontmatter 規約を検査する (S19)。
 
-    このリポジトリの instruction は user scope のルートコンテキスト
-    (`~/.claude/CLAUDE.md` / `~/.cursor/AGENTS.md`) に載せる前提なので、
+    このリポジトリの instruction は `apm compile --global` で
+    `~/.claude/CLAUDE.md` に載せる前提なので、
     `applyTo` があると path 限定ルールになり意図した場所に届かない。
     """
     if not APM_INSTRUCTIONS_DIR.is_dir():
@@ -352,25 +353,34 @@ def iter_hook_commands(obj):
             yield from iter_hook_commands(item)
 
 
-def hook_script_candidates(command, hook_file):
-    """フック command 文字列から、リポジトリ内のスクリプト候補パスを返す。"""
+def resolve_hook_script(command, hook_file):
+    """APM と同じ規則で command からスクリプトパスを1つ返す。
+
+    `./` はフック JSON と同じディレクトリ、`${PLUGIN_ROOT}` 系はパッケージルート。
+    空白を含む command や、それ以外の書き方は解決しない。
+    """
     stripped = command.strip().strip("'").strip('"')
+    if not stripped:
+        return None
+    first = stripped.split()[0]
+    if first != stripped:
+        return None
     for token in PLUGIN_ROOT_TOKENS:
-        stripped = stripped.replace(token, str(REPO_ROOT))
-    first = stripped.split()[0] if stripped else ""
-    if not first:
-        return []
-    looks_like_path = first.startswith(("./", "/", ".")) or first.endswith(".sh")
-    if not looks_like_path:
-        return []
-    path = Path(first)
-    if path.is_absolute():
-        return [path]
-    return [hook_file.parent / path, REPO_ROOT / path]
+        prefix = token + "/"
+        if stripped == token:
+            return REPO_ROOT
+        if stripped.startswith(prefix):
+            return REPO_ROOT / stripped[len(prefix) :]
+    if stripped.startswith("./"):
+        candidate = (hook_file.parent / stripped).resolve()
+        if candidate.parent != hook_file.parent.resolve():
+            return None
+        return candidate
+    return None
 
 
 def check_apm_hooks(findings):
-    """`.apm/hooks/*.json` がパースでき、参照スクリプトが存在することを検査する (S20)。"""
+    """`.apm/hooks/*.json` がパースでき、command が実行可能スクリプトを指すことを検査する (S20)。"""
     if not APM_HOOKS_DIR.is_dir():
         return
     for path in sorted(APM_HOOKS_DIR.glob("*.json")):
@@ -381,15 +391,33 @@ def check_apm_hooks(findings):
             findings.append(Finding("S20", "error", f"{rel} のパースに失敗しました: {exc}"))
             continue
         for command in iter_hook_commands(data):
-            candidates = hook_script_candidates(command, path)
-            if not candidates:
+            script = resolve_hook_script(command, path)
+            if script is None:
+                findings.append(
+                    Finding(
+                        "S20",
+                        "error",
+                        f"{rel} の command は './スクリプト' または "
+                        "'${PLUGIN_ROOT}/...' の単独パスである必要があります: "
+                        f"{command}",
+                    )
+                )
                 continue
-            if not any(candidate.exists() for candidate in candidates):
+            if not script.is_file():
                 findings.append(
                     Finding(
                         "S20",
                         "error",
                         f"{rel} の command が参照するスクリプトが見つかりません: {command}",
+                    )
+                )
+                continue
+            if not os.access(script, os.X_OK):
+                findings.append(
+                    Finding(
+                        "S20",
+                        "error",
+                        f"{rel} の command が参照するスクリプトに実行権限がありません: {command}",
                     )
                 )
 
