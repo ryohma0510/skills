@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.21.0"
+    "version": "1.22.0"
   },
   "plugins": [
     {
@@ -17,6 +17,7 @@
       "skills": [
         "./skills/code-comments",
         "./skills/copy-skill",
+        "./skills/eli5",
         "./skills/grilling",
         "./skills/handoff",
         "./skills/implement",
