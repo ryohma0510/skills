@@ -118,7 +118,7 @@ mktemp -d
 
 保存したパスを渡して Skill ツールで `sanitize-doc` を発動する。
 
-今回の変更を対象に Skill ツールで `eli5` を発動する。得た説明を、保存したファイルの ELI5 の `<details>` に書き込む。ブロックが無ければ、テンプレートと同じ形で追加してから書き込む。
+今回の変更を対象に Skill ツールで `eli5` を発動する。得た説明を、保存したファイルの ELI5 の `<details>` に書き込む。ブロックが無ければ、[`references/description.md`](references/description.md) の `<details>` と同じマークアップを、自然文の直後（Summary が無ければ本文先頭）へ追加してから書き込む。
 
 以降のステップは、このファイルの内容を PR 本文として扱う。
 
