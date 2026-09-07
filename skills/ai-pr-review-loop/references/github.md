@@ -8,10 +8,10 @@
 
 ```bash
 gh api repos/<owner>/<repo>/pulls/<number>/reviews \
-  --jq '[.[]|select(.user.login=="copilot-pull-request-reviewer[bot]")]|last|.submitted_at'
+  --jq '[.[]|select(.user.login=="copilot-pull-request-reviewer[bot]")|.submitted_at]|sort|last'
 
 gh api repos/<owner>/<repo>/pulls/<number>/reviews \
-  --jq '[.[]|select(.user.login=="chatgpt-codex-connector[bot]")]|last|.submitted_at'
+  --jq '[.[]|select(.user.login=="chatgpt-codex-connector[bot]")|.submitted_at]|sort|last'
 ```
 
 該当 review が無ければ null。
@@ -46,7 +46,7 @@ gh api repos/<owner>/<repo>/pulls/<number>/requested_reviewers
 ## GitHub Enterprise Server
 
 ```bash
-gh api users/copilot-pull-request-reviewer[bot] --jq .node_id
+gh api "users/copilot-pull-request-reviewer[bot]" --jq .node_id
 ```
 
 得られた値を `botIds` に入れて「Copilot の依頼」を実行し、検証する。
@@ -82,7 +82,9 @@ query($owner:String!,$repo:String!,$pr:Int!){
 }' -F owner=<owner> -F repo=<repo> -F pr=<number>
 ```
 
-`reviewThreads.pageInfo.hasNextPage` が true なら `after` に `endCursor` を渡して続きを取る。`comments.pageInfo.hasNextPage` が true のスレッドは、thread ID を指定してコメント側を辿る。
+`reviewThreads.pageInfo.hasNextPage` が true なら、同じクエリの `reviewThreads(first:100)` を `reviewThreads(first:100, after:$cursor)` にして `endCursor` を渡す。`comments.pageInfo.hasNextPage` が true のスレッドは、thread ID を指定してコメント側を辿る。
+
+各回でベースラインと同じ reviews 取得と、Copilot の検証と同じ `requested_reviewers` も取る。完了シグナルの `submitted_at` と Copilot の離脱はこちらで見る。
 
 ```bash
 gh api graphql -f query='
@@ -114,7 +116,7 @@ Copilot の review state `COMMENTED` は拒否ではない。本文の「human r
 
 ## トラブルシュート
 
-検証で `Copilot` が載らない: node_id を `gh api users/copilot-pull-request-reviewer[bot] --jq .node_id` で取り、`botIds` を差し替えて依頼をやり直す。それでも載らなければ、その PR のこの周は Copilot を欠席にし、Codex 側だけで進める。
+検証で `Copilot` が載らない: node_id を `gh api "users/copilot-pull-request-reviewer[bot]" --jq .node_id` で取り、`botIds` を差し替えて依頼をやり直す。それでも載らなければ、その PR のこの周は Copilot を欠席にし、Codex 側だけで進める。
 
 Codex の review が来ない: リポジトリで Codex cloud と Code review が有効かを確認する。無効ならその PR の以降の周も Codex 投稿を省略し、Copilot だけで回す。
 

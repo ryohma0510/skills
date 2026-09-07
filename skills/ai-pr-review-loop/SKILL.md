@@ -21,13 +21,16 @@ Copilot と Codex にレビューを依頼し、到着を待ち、指摘対応�
 | --- | --- |
 | `274` | 現在のリポジトリの PR 274 |
 | `owner/repo#274` | そのリポジトリの PR 274 |
+| PR の URL | その URL の PR |
 | （省略） | 現在のブランチの PR |
 
-省略時:
+番号だけのときは `gh pr view <number> --json number,url,baseRefName,headRefName`。省略時は番号なしで同じフィールドを取る。
 
 ```bash
-gh pr view --json number,url,baseRefName,headRefName,headRepository
+gh pr view --json number,url,baseRefName,headRefName
 ```
+
+`owner` / `repo` は PR の URL から取る。
 
 `gh pr view` が `no pull requests found` で失敗したら、対象 PR をユーザーに聞いて中断する。
 
@@ -46,7 +49,7 @@ gh pr view --json number,url,baseRefName,headRefName,headRepository
 対象の各 PR について、head がリモートに push 済みであることを確認してから依頼する。
 
 1. [references/github.md](references/github.md) の「ベースライン」で、Copilot と Codex それぞれの直近 `submitted_at` を取る（未提出なら null）。
-2. 同ファイルの「Copilot の依頼」を実行し、「Copilot の検証」で `requested_reviewers` に `Copilot` が載るまでを完了とする。mutation の成功ログだけでは未完了。GitHub.com 以外では同ファイルの「GitHub Enterprise Server」で `botIds` を解決してからやり直す。
+2. 同ファイルの「Copilot の依頼」を実行し、「Copilot の検証」で `requested_reviewers` に `Copilot` が載っていることを確認する。mutation の成功ログだけでは未完了。載っていなければ同ファイルの「GitHub Enterprise Server」または「トラブルシュート」へ進む。
 3. 同ファイルの「Codex の依頼」を実行する。本文は `@codex review` の 1 行だけ。自動レビューが既に走っていて未提出の Codex review がある初回は、この投稿を省略する。再依頼の周では push 後に毎回投稿する。
 
 `gh pr edit --add-reviewer` は Bot では silent fail するため、Copilot の依頼には使わない。
@@ -55,7 +58,7 @@ gh pr view --json number,url,baseRefName,headRefName,headRepository
 
 ### 2.2 到着待ち
 
-間隔 25〜30 秒、最大 20 回。クエリとページネーションは [references/github.md](references/github.md) の「到着待ち」を実行する。author の対応は同節の表で判定する。
+間隔は `sleep 30`、最大 20 回。各回で [references/github.md](references/github.md) の「到着待ち」を実行する（スレッドの GraphQL、reviews の `submitted_at`、`requested_reviewers`）。author の対応は同節の表で判定する。
 
 各 bot の完了シグナル:
 
@@ -94,6 +97,6 @@ gh pr view --json number,url,baseRefName,headRefName,headRepository
 - 対象にした PR の URL
 - 回した周回数
 - 各 PR の、各周の対応件数 / 対応しない件数 / resolve 件数 / 残したスレッド
-- 打ち切り（上限・欠席した bot）があればその理由
+- 打ち切り（上限・欠席した bot）があればその理由。5 周目で修正コミットを出して終えた場合は、その修正に対する再依頼はしていない旨も書く
 
 完了条件: ステップ1で対象にした全 PR について、上の項目が揃っている。
