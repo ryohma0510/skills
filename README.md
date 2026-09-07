@@ -83,7 +83,6 @@ skills/
 
 | スキル名 | 概要 |
 | --- | --- |
-| [ai-pr-review-loop](skills/ai-pr-review-loop/SKILL.md) | Copilot と Codex に PR レビューを依頼し、指摘対応と再依頼をループする |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
@@ -93,7 +92,7 @@ skills/
 | [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定と日本語タイトル/description の生成を経て draft PR を作成する |
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに対応する。対応要否の判断・同種箇所への横展開・返信・自分と Bot のスレッドの resolve まで行う |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
-| [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正するループを指定回数(既定2周)回す |
+| [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正する。既定2周。1周目は Cursor の GPT、2周目はホスト（ホストが GPT 系なら Claude） |
 | [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。装飾文言と会話の名残の両方をまとめて削る |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | Predictable なスキルを書くための語彙と原則。スキルの作成・編集・診断時に参照する |
 | [tdd](skills/tdd/SKILL.md) | red → green のループを回す手順。seam の確定・red・green の各ステップと vertical slice |

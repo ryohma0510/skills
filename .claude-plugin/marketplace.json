@@ -15,7 +15,6 @@
       "source": "./",
       "strict": true,
       "skills": [
-        "./skills/ai-pr-review-loop",
         "./skills/code-comments",
         "./skills/copy-skill",
         "./skills/eli5",
