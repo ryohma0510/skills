@@ -83,6 +83,7 @@ skills/
 
 | スキル名 | 概要 |
 | --- | --- |
+| [ai-pr-review-loop](skills/ai-pr-review-loop/SKILL.md) | Copilot と Codex に PR レビューを依頼し、指摘対応と再依頼をループする |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
