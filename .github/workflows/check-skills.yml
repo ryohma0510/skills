@@ -11,7 +11,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # merge-base を取るため全履歴とシンボリックリンクをそのまま取得する
+          # merge-base を取るため全履歴を取得する
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
