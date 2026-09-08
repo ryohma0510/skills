@@ -6,7 +6,7 @@
   },
   "metadata": {
     "description": "My personal Claude Skills collection",
-    "version": "1.24.0"
+    "version": "1.25.0"
   },
   "plugins": [
     {
@@ -21,6 +21,7 @@
         "./skills/grilling",
         "./skills/handoff",
         "./skills/implement",
+        "./skills/orca-md-pr-comments",
         "./skills/pr-create",
         "./skills/reply-review",
         "./skills/review",
