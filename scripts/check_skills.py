@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S16, S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S10, S12-S16, S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
 
 import json
 import os
