@@ -21,6 +21,9 @@ jobs:
       - name: check_skills
         run: python3 scripts/check_skills.py
 
+      - name: orca-md-pr-comments tests
+        run: python3 skills/orca-md-pr-comments/scripts/test_resolve_excerpt_lines.py
+
       - name: check_version_bump
         if: github.event_name == 'pull_request'
         run: python3 scripts/check_version_bump.py --base "origin/${{ github.base_ref }}"
