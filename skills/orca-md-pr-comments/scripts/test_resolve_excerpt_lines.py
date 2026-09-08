@@ -163,6 +163,20 @@ User comment: 誤字を直す
         self.assertEqual(1, result["start_line"])
         self.assertEqual(2, result["end_line"])
 
+    def test_should_resolve_wrapped_visible_text_when_a_space_in_the_excerpt_matches_a_newline_in_the_file(self):
+        # Given
+        mod = load_mod()
+        source = "hello\nworld を確認する\n"
+        excerpt = "hello world を確認する"
+
+        # When
+        result = mod.resolve_excerpt(source, excerpt)
+
+        # Then
+        self.assertEqual("resolved", result["status"])
+        self.assertEqual(1, result["start_line"])
+        self.assertEqual(2, result["end_line"])
+
 
 if __name__ == "__main__":
     unittest.main()

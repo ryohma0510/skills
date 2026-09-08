@@ -32,7 +32,7 @@ python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py 
 
 標準入力にペイロードを渡す。各要素の `hint_start` / `hint_end` が reported lines。`excerpt` は引用記号を外した選択テキスト。`user_comment` は投稿の種。
 
-完了条件: コメント配列があり、各件に `file` と `excerpt` と `user_comment` がある。
+完了条件: コメント配列があり、各件に `file` と `excerpt` がある。`user_comment` が空の件は skipped として残す。
 
 ## 3. 対象 PR
 
@@ -49,14 +49,19 @@ gh pr list --head "$(git branch --show-current)" --json number,url,headRefOid
 
 ## 4. resolved line
 
-各コメントについて、作業ツリーの `file` を読む。無ければ PR head から取る。
+行特定の対象は `commit_id` と同じ PR head のファイル。`git rev-parse HEAD` がその SHA と一致し、作業ツリーにファイルがあるならそれを読む。それ以外は PR head から取る。
+
+```bash
+gh api "repos/{owner}/{repo}/contents/{path}?ref={HEAD_SHA}" --jq .content \
+  | python3 -c "import sys,base64; sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))"
+```
 
 ```bash
 python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py resolve \
   --file <path> --excerpt <excerpt> --hint-start <hint_start> --hint-end <hint_end>
 ```
 
-行特定はこのスクリプトに任せる。
+`--file` は上で得た本文を一時ファイルに書いたパスでもよい。行特定はこのスクリプトに任せる。
 
 - `status=resolved` → `start_line` / `end_line` を採用する。1行なら両方同じ。
 - `status=ambiguous` → 投稿せず、`candidates` を出して選ばせる。
@@ -70,21 +75,34 @@ python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py 
 
 音声入力の欠け（助詞、句読点、対象の抜け）を埋めるところまで。
 
-完了条件: 各 resolved 件に、元の `user_comment` と投稿本文の両方がある。
+完了条件: 各 resolved かつ `user_comment` がある件に、元の `user_comment` と投稿本文の両方がある。
 
 ## 6. 投稿
 
-resolved の件を、同一ターンで GitHub の review comment として投稿する。
+resolved かつ `user_comment` がある件を、同一ターンで GitHub の review comment として投稿する。
 
-head SHA を `commit_id` にする。`side` は `RIGHT`。1行なら `line` だけ。excerpt が複数行のときだけ `start_line` と `line`（最終行）を付ける。
+head SHA を `commit_id` にする。`side` は `RIGHT`。1行なら `line` だけ。複数行なら `start_line` / `line`（最終行）と `start_side=RIGHT` を付ける。
 
-1件:
+1行:
 
 ```bash
 gh api repos/{owner}/{repo}/pulls/{pr}/comments \
   -f commit_id="{HEAD_SHA}" \
   -f path="{file}" \
   -f body="{投稿本文}" \
+  -F line={resolved_end_line} \
+  -f side=RIGHT
+```
+
+複数行:
+
+```bash
+gh api repos/{owner}/{repo}/pulls/{pr}/comments \
+  -f commit_id="{HEAD_SHA}" \
+  -f path="{file}" \
+  -f body="{投稿本文}" \
+  -F start_line={resolved_start_line} \
+  -f start_side=RIGHT \
   -F line={resolved_end_line} \
   -f side=RIGHT
 ```
@@ -97,7 +115,7 @@ jq -n --arg commit "$HEAD_SHA" --argjson comments "$COMMENTS" \
 | gh api repos/{owner}/{repo}/pulls/{pr}/reviews --input -
 ```
 
-`comments` の各要素は `path` / `body` / `line` / `side`。複数行だけ `start_line` を足す。
+`comments` の各要素は `path` / `body` / `line` / `side`。複数行は `start_line` と `start_side` を足す。
 
 API が diff 外を理由に失敗したら、その失敗を返す。近い変更行へ付け替えない。
 

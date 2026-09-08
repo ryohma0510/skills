@@ -210,7 +210,7 @@ def _visible_span(lines: list[str], start_index: int, visible_needle: str) -> tu
     parts = []
     for end in range(start_index, min(start_index + 8, len(lines))):
         parts.append(_visible_text(lines[end]))
-        if visible_needle in "".join(parts) or visible_needle in "\n".join(parts):
+        if visible_needle in "".join(parts) or visible_needle in "\n".join(parts) or _normalize_ws(visible_needle) in _normalize_ws("\n".join(parts)):
             return (start_index + 1, end + 1)
     return None
 
@@ -229,7 +229,7 @@ def _find_whitespace_normalized(lines: list[str], needle: str) -> list[tuple[int
         parts = []
         for end in range(start, min(start + 8, len(lines))):
             parts.append(_visible_text(lines[end]))
-            if compact in _normalize_ws("".join(parts)):
+            if compact in _normalize_ws("\n".join(parts)):
                 span = (start + 1, end + 1)
                 if span not in found:
                     found.append(span)
