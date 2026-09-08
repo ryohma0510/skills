@@ -3,3 +3,8 @@ name: ryohma0510-skills
 version: "1.25.0"
 description: My personal Claude Skills collection
 author: ryohma0510
+targets:
+  - claude
+  - codex
+  - gemini
+  - grok-build

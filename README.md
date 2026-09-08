@@ -9,8 +9,12 @@
 ### apm を使う場合
 
 ```bash
-# リポジトリ内の全スキルを .claude/skills/ に配置する
+# リポジトリ内の全スキルをターゲット環境（検出された環境、または指定ターゲット）に配置する
+apm install ryohma0510/skills
+
+# 特定のターゲットを指定してインストールする場合
 apm install ryohma0510/skills --target claude
+# 複数ターゲットを指定する場合: apm install ryohma0510/skills --target claude,codex,gemini,grok-build
 
 # 個別のスキルだけ入れる場合
 apm install ryohma0510/skills/tdd --target claude
