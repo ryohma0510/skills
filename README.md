@@ -14,7 +14,7 @@ apm install ryohma0510/skills
 
 # 特定のターゲットを指定してインストールする場合
 apm install ryohma0510/skills --target claude
-# 複数ターゲットを指定する場合: apm install ryohma0510/skills --target claude,gemini,grok-build
+# 複数ターゲットを指定する場合: apm install ryohma0510/skills --target claude,codex,gemini,grok-build
 
 # 個別のスキルだけ入れる場合
 apm install ryohma0510/skills/tdd --target claude
