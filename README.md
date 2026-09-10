@@ -93,7 +93,7 @@ skills/
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
 | [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする |
 | [implement](skills/implement/SKILL.md) | 実装作業の入り口。`tdd` でテストファーストに進め、`code-comments` でコメント品質を確認し、完了後に `pr-create` と `review-loop` を実行する |
-| [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを excerpt から行特定し、GitHub PR の inline comment として投稿する |
+| [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを excerpt から行特定し、GitHub PR の inline comment として投稿する（明示的な投稿指示時のみ） |
 | [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定と日本語タイトル/description の生成を経て draft PR を作成する |
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに対応する。対応要否の判断・同種箇所への横展開・返信・自分と Bot のスレッドの resolve まで行う |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
