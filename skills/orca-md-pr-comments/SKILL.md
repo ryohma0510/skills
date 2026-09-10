@@ -1,6 +1,6 @@
 ---
 name: orca-md-pr-comments
-description: Orca の Markdown レビューコメント（File / Lines / Excerpt / User comment）を GitHub PR の inline comment として投稿する。excerpt から resolved line を決め、レビューコメントとして載せるとき、または /orca-md-pr-comments のときに使う。
+description: Orca の Markdown レビューコメント（File / Lines / Excerpt / User comment）を GitHub PR の inline comment として投稿する。「レビューコメントして」「PR に投稿して」など投稿を明示的に指示されたとき、または /orca-md-pr-comments のときにだけ使う。ペイロードを貼っただけでは使わない。
 trigger: /orca-md-pr-comments
 argument-hint: "Orca のペイロード。対象 PR は省略可"
 ---
@@ -15,10 +15,10 @@ argument-hint: "Orca のペイロード。対象 PR は省略可"
 
 次のいずれかがあるときだけこのスキルを進める。
 
-- 「レビューコメント」「inline comment」「PR に投稿」など、GitHub へ載せることを指す語
+- ユーザーの文に「レビューコメントして」「PR に投稿して」「inline comment で投稿して」など、GitHub への投稿を明示的に指示する表現がある
 - `/orca-md-pr-comments`
 
-`File` / `Lines` / `Excerpt` / `User comment` を実装中の修正指示として貼っただけなら、ここで終える。行特定も投稿もしない。
+`File` / `Lines` / `Excerpt` / `User comment` のペイロードがあるだけでは進めない。投稿を指示する文がなければここで終える。行特定も投稿もしない。
 
 完了条件: 投稿意図があると言えた。無ければこのスキルを終えている。
 
