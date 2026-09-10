@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S10, S12-S16, S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S10, S13-S16, S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
 
 import json
 import os
@@ -10,7 +10,6 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 SKILLS_DIR = REPO_ROOT / "skills"
-MARKETPLACE_JSON = REPO_ROOT / ".claude-plugin" / "marketplace.json"
 APM_YML = REPO_ROOT / "apm.yml"
 README_MD = REPO_ROOT / "README.md"
 APM_INSTRUCTIONS_DIR = REPO_ROOT / ".apm" / "instructions"
@@ -236,24 +235,6 @@ def check_references(skill_dir, body, findings):
                 findings.append(Finding("S07", "warn", f"'{rel}' はSKILL.mdのどこからも参照されていません"))
 
 
-def check_marketplace(name, findings):
-    if not MARKETPLACE_JSON.exists():
-        findings.append(Finding("S12", "error", "marketplace.jsonが見つかりません"))
-        return
-    try:
-        data = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        findings.append(Finding("S12", "error", f"marketplace.jsonのパースに失敗しました: {exc}"))
-        return
-
-    expected = f"./skills/{name}"
-    for plugin in data.get("plugins", []):
-        entries = {s.rstrip("/") for s in plugin.get("skills", [])}
-        if expected in entries or f"skills/{name}" in {e.lstrip("./") for e in entries}:
-            return
-    findings.append(Finding("S12", "error", f"marketplace.jsonのplugins[].skillsに '{expected}' がありません"))
-
-
 def read_apm_yml_version():
     """apm.yml のトップレベル version を返す。無ければ None。
 
@@ -381,30 +362,13 @@ def check_apm_hooks(findings):
 
 
 def check_apm_manifest(findings):
-    """apm 配布用マニフェストの存在と、marketplace.json との version 一致を検査する (S18)。"""
+    """apm 配布用マニフェストの存在と version の有無を検査する (S18)。"""
     if not APM_YML.exists():
         findings.append(Finding("S18", "error", "apm.yml が見つかりません (apm 配布に必要)"))
         return
     apm_version = read_apm_yml_version()
     if not apm_version:
         findings.append(Finding("S18", "error", "apm.yml に version がありません"))
-        return
-    if not MARKETPLACE_JSON.exists():
-        return
-    try:
-        data = json.loads(MARKETPLACE_JSON.read_text(encoding="utf-8"))
-    except json.JSONDecodeError:
-        return
-    marketplace_version = data.get("metadata", {}).get("version")
-    if marketplace_version and apm_version != marketplace_version:
-        findings.append(
-            Finding(
-                "S18",
-                "error",
-                f"apm.yml の version '{apm_version}' が marketplace.json の "
-                f"metadata.version '{marketplace_version}' と一致しません",
-            )
-        )
 
 
 def check_readme(name, findings):
@@ -473,7 +437,6 @@ def check_skill(skill_dir):
     check_description_no_caller_naming(name, frontmatter, findings)
     check_body_length(body, findings)
     check_references(skill_dir, body, findings)
-    check_marketplace(name, findings)
     check_readme(name, findings)
     check_duplicate_blocks(skill_dir, body, findings)
     check_user_invoked_description(frontmatter, findings)
