@@ -2,7 +2,7 @@
 
 自分が開発した Claude Skills を整理・管理するためのリポジトリ。
 
-[apm (Agent Package Manager)](https://github.com/microsoft/apm) および Claude Code のプラグイン機構の両方から利用できるように構成している。
+[apm (Agent Package Manager)](https://github.com/microsoft/apm) から利用できるように構成している。
 
 ## インストール方法
 
@@ -45,17 +45,6 @@ apm compile --global
 
 Claude Code では、同じ内容を PreToolUse フックでも遮断する。`apm install --target claude --global` が `~/.claude/settings.json` にマージし、`AskUserQuestion` の呼び出しを拒否してチャット本文へ誘導する。Cursor の Question UI にはフックが発火せず、無効化スイッチもない。
 
-### Claude Code のプラグインとして使う場合
-
-```
-/plugin marketplace add ryohma0510/skills
-/plugin install ryohma0510-skills@ryohma0510-skills
-```
-
-配布単位は apm パッケージと 1:1 で、プラグインは 1 つだけ。apm 側に複数プラグインへ分割する概念がないため、
-Claude Code 側もリポジトリ全体を 1 プラグインとして配る。
-プラグイン経路はスキルだけを配る。instruction とフックは apm 経由で入れる。
-
 ## ディレクトリ構成
 
 ```
@@ -66,8 +55,6 @@ skills/
 ├── .apm/
 │   ├── instructions/      # 常時適用のルール。applyTo なし。apm compile --global でルートコンテキストへ
 │   └── hooks/             # Claude Code の PreToolUse。apm install が settings.json にマージする
-├── .claude-plugin/
-│   └── marketplace.json   # Claude Code プラグインとして配布するためのマニフェスト
 └── skills/
     └── <skill-name>/
         ├── SKILL.md        # 必須。YAML frontmatter (name, description) + 本文
@@ -78,10 +65,9 @@ skills/
 
 - `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
-- 新しいスキルを `skills/` 配下に追加したら、`.claude-plugin/marketplace.json` の `plugins[0].skills` 配列にも `./skills/<skill-name>` を追記する(Claude plugin 側はこのマニフェストで明示する必要がある)。
 - `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと path 限定ルールになり、ルートコンテキストには載らない(`scripts/check_skills.py` の S19 が検査する)。
 - `.apm/hooks/*.json` の command は `./スクリプト`（JSON と同じディレクトリ）または `${PLUGIN_ROOT}/...` の実行可能ファイルを指す(`scripts/check_skills.py` の S20 が検査する)。
-- `apm.yml` の `version` と `marketplace.json` の `metadata.version` は同じ値に揃える(`scripts/check_skills.py` の S18 が検査する)。skills/ または .apm/ を変えたら version を上げる。
+- skills/ または .apm/ を変えたら `apm.yml` の version を上げる。
 
 ## スキル一覧
 

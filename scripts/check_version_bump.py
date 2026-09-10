@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""skills/ または .apm/ を変更したら marketplace.json の version が上がっているかを検査する (V01-V03)。
+"""skills/ または .apm/ を変更したら apm.yml の version が上がっているかを検査する (V01-V03)。
 
 check_skills.py が拾えない「バージョン更新の漏れ」を、base ref との差分から決定論的に検出する。
 CI でもローカルでも同じ判定になるよう、比較対象は merge-base に固定する。
@@ -9,7 +9,6 @@ CI でもローカルでも同じ判定になるよう、比較対象は merge-b
 """
 
 import argparse
-import json
 import os
 import re
 import subprocess
@@ -17,7 +16,7 @@ import sys
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
-MARKETPLACE_PATH = ".claude-plugin/marketplace.json"
+APM_YML_PATH = "apm.yml"
 README_PATH = "README.md"
 SKILLS_PREFIX = "skills/"
 APM_PREFIX = ".apm/"
@@ -66,7 +65,7 @@ def changed_files(merge_base):
 
 
 def read_version(ref, path):
-    """ref 時点の marketplace.json から metadata.version を読む。無ければ None。"""
+    """ref 時点の apm.yml からトップレベルの version を読む。無ければ None。"""
     if ref is None:
         text = (REPO_ROOT / path).read_text(encoding="utf-8")
     else:
@@ -74,11 +73,14 @@ def read_version(ref, path):
             text = git("show", f"{ref}:{path}")
         except RuntimeError:
             return None
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError as exc:
-        raise RuntimeError(f"{path} のパースに失敗しました ({ref or 'working tree'}): {exc}")
-    return data.get("metadata", {}).get("version")
+    for line in text.splitlines():
+        match = re.match(r"^([A-Za-z0-9_-]+):\s*(.*)$", line)
+        if match and match.group(1) == "version":
+            value = match.group(2).strip()
+            if len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"'):
+                value = value[1:-1]
+            return value or None
+    return None
 
 
 def parse_semver(version, label):
@@ -124,14 +126,14 @@ def main():
             print("skills/ と .apm/ に変更がないため version チェックはスキップします")
             return 0
 
-        head_version = read_version(None, MARKETPLACE_PATH)
-        base_version = read_version(merge_base, MARKETPLACE_PATH)
+        head_version = read_version(None, APM_YML_PATH)
+        base_version = read_version(merge_base, APM_YML_PATH)
 
         errors = []
         warnings = []
 
         if head_version is None:
-            errors.append(("V01", f"{MARKETPLACE_PATH} に metadata.version がありません"))
+            errors.append(("V01", f"{APM_YML_PATH} に version がありません"))
             head_tuple = None
         else:
             head_tuple = parse_semver(head_version, "HEAD")
