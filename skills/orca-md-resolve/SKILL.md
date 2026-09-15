@@ -32,7 +32,7 @@ python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py 
   --file <path> --excerpt <excerpt> --hint-start <hint_start> --hint-end <hint_end>
 ```
 
-行特定はこのスクリプトに任せる。エージェントが本文を自分で grep して行を決めない。
+行特定はこのスクリプトに任せる。
 
 - `status=resolved` → `start_line` / `end_line` を採用する。1行なら両方同じ。
 - `status=ambiguous` → `candidates` を出して選ばせる。

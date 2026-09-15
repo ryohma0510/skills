@@ -37,16 +37,19 @@ gh pr list --head "$(git branch --show-current)" --json number,url,headRefOid
 
 ## 3. 行特定
 
-行特定の対象は `commit_id` と同じ PR head のファイル。`git rev-parse HEAD` がその SHA と一致し、作業ツリーにファイルがあるならそれを使う。それ以外は PR head から取り、一時ファイルに書く。
+行特定の対象は `commit_id` と同じ PR head のファイル。ペイロードの各 `File` について、読む本文を次のどちらかで用意する。
+
+- `git rev-parse HEAD` が head SHA と一致し、作業ツリーにそのファイルがある → そのパスを使う
+- それ以外 → PR head から取り、一時ファイルに書く
 
 ```bash
 gh api "repos/{owner}/{repo}/contents/{path}?ref={HEAD_SHA}" --jq .content \
   | python3 -c "import sys,base64; sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))"
 ```
 
-ペイロードと、一時ファイルを使った件のパス対応を渡して Skill ツールで `orca-md-resolve` を発動する。投稿に使う行は、その結果の `start_line` / `end_line` である。
+用意したパス対応（ペイロードの `file` → 読むパス）とペイロードを渡して Skill ツールで `orca-md-resolve` を発動する。投稿に使う行は、その結果の各件の `resolved` 行（スクリプト JSON なら `start_line` / `end_line`）である。
 
-完了条件: `orca-md-resolve` が終わり、全件が resolved / ambiguous / not_found のいずれかに分かれている。
+完了条件: 全件について PR head と同じ本文を読むパスが決まっており、`orca-md-resolve` が終わり、全件が resolved / ambiguous / not_found のいずれかに分かれている。
 
 ## 4. 投稿本文
 
