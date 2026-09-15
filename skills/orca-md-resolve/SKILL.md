@@ -7,7 +7,7 @@ argument-hint: "Orca のペイロード"
 
 # Orca Markdown → resolved lines
 
-`excerpt` が source of truth。`reported lines` は hint。結果は `file:start[-end]` の行特定であり、PR への投稿はしない。
+`excerpt` が source of truth。`reported lines` は hint。結果は `file:start[-end]` の行特定である。
 
 ペイロード例とマッチの具体形が要るときに [examples.md](examples.md) を読む。
 

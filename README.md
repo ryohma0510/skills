@@ -81,7 +81,8 @@ skills/
 | [implement](skills/implement/SKILL.md) | 実装作業の入り口。`tdd` でテストファーストに進め、`code-comments` でコメント品質を確認し、完了後に `pr-create` と `review-loop` を実行する |
 | [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを GitHub PR の inline comment として投稿する（明示的な投稿指示時のみ。行特定は orca-md-resolve） |
 | [orca-md-resolve](skills/orca-md-resolve/SKILL.md) | Orca の Markdown レビューコメントを excerpt から作業ツリー上の正しい行に特定する（投稿はしない） |
-| [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定と日本語タイトル/description の生成を経て draft PR を作成する |
+| [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定のうえ draft PR を作成する。タイトルと description は `pr-description` に任せる |
+| [pr-description](skills/pr-description/SKILL.md) | diff から日本語のタイトルと description を生成し、既存 PR があれば差し替え、無ければ本文ファイルとして返す |
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに対応する。対応要否の判断・同種箇所への横展開・返信・自分と Bot のスレッドの resolve まで行う |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
 | [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正する。既定2周。1周目は Cursor の GPT、2周目はホスト（ホストが GPT 系なら Claude） |

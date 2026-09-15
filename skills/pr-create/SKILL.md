@@ -6,7 +6,7 @@ argument-hint: "base ブランチ（省略時は自動推定）"
 
 # Push & PR 作成
 
-変更を push し、diff から日本語のタイトルと description を生成して draft PR を作成する。
+変更を push し、draft PR を作成する。タイトルと description の生成・既存 PR の本文更新は `pr-description` に任せる。
 
 ## 1. push
 
@@ -37,15 +37,15 @@ git push -u "$(git config --get "branch.${BRANCH}.remote" || echo origin)" "$BRA
 gh pr view --json number,url,baseRefName,isDraft
 ```
 
-- PR がある → **更新モード**。base は既存 PR の `baseRefName`（修飾つき ref はステップ1のリモート名を冠したもの）を使い、次のステップを飛ばす。最後は本文の差し替えになる。
-- `no pull requests found` で失敗する → **新規モード**。次のステップへ進む。
-- それ以外の理由で失敗する（未認証、ネットワーク断、リポジトリ解決不能など） → モードを決められないため、エラー内容をユーザーに伝えて中断する。新規モードとして進めると、既存 PR がある場合にステップ9で衝突する。
+- PR がある → Skill ツールで `pr-description` を発動し、本文とタイトルを最新の差分に合わせる。このスキルの残りのステップは行わない。完了条件は `pr-description` の報告（PR URL・base・タイトル）が得られていること。
+- `no pull requests found` で失敗する → **新規作成**。次のステップへ進む。
+- それ以外の理由で失敗する（未認証、ネットワーク断、リポジトリ解決不能など） → モードを決められないため、エラー内容をユーザーに伝えて中断する。新規として進めると、既存 PR がある場合にステップ5で衝突する。
 
-完了条件: 更新モードか新規モードかが決まり、更新モードなら対象の PR 番号を控えている。
+完了条件: 既存 PR なら `pr-description` まで済ませている。新規なら次のステップへ進める状態である。
 
 ## 3. base ブランチの決定
 
-新規モードでのみ行う。引数で base が指定されていれば、ステップ1のリモート名を冠して修飾つき ref を組み立て、このステップを終える。
+引数で base が指定されていれば、ステップ1のリモート名を冠して修飾つき ref を組み立て、このステップを終える。
 
 指定がなければ、このスキルに同梱したスクリプトで直接の親ブランチを推定する。スキルの読み込み時に提示されるベースディレクトリ（このスキルのフォルダの絶対パス）配下の scripts/detect-base.sh を実行する。
 
@@ -59,87 +59,22 @@ bash "$SKILL_BASE_DIR/scripts/detect-base.sh"   # $SKILL_BASE_DIR は上記ベ�
 
 完了条件: base が1つに確定し、その修飾つき ref とブランチ名の両方が分かっている。
 
-## 4. 関連 PR の把握
+## 4. タイトルと description の生成
 
-同じスタックに積まれた PR があるかを見る。
+確定した base を渡して Skill ツールで `pr-description` を発動する。既存 PR は無い前提なので、`pr-description` は本文のみ（一時ファイル）を返す。
 
-```bash
-gh pr list --state all --limit 50 --json number,title,url,headRefName,baseRefName,state,isDraft
-```
+完了条件: `pr-description` の報告から、タイトルと本文ファイルの実パスが分かっている。
 
-このブランチの base が別 PR の head なら、その PR がスタックの1つ下。その PR の base をさらにたどって根まで並べる。逆に、このブランチを base にしている PR があればスタックの1つ上で、そこからも同様にたどる。
+## 5. PR の作成
 
-完了条件: スタックに属さないと判断したか、属する場合は根から先端までの PR を列挙できている。
-
-## 5. diff の取得
-
-base のローカルブランチが無くても解決できるよう、ステップ1のリモート名で修飾した参照を使う。
-
-```bash
-git log <remote>/<base>...HEAD --oneline
-git diff <remote>/<base>...HEAD --stat
-git diff <remote>/<base>...HEAD
-```
-
-完了条件: 全変更ファイルの diff を読み終えている。
-
-## 6. タイトルの生成
-
-diff の内容から日本語で生成する。50文字以内を目安に、変更の目的と内容を端的に表す。
-
-## 7. テンプレートの選択
-
-デフォルトはこのスキルのテンプレート（[`references/description.md`](references/description.md)）。リポジトリの PR テンプレートを使うのは、ユーザーが明示的に指示した場合のみ。
-
-ユーザーからリポジトリのテンプレートを使う指示があった場合だけ、カレントディレクトリではなくリポジトリのルートを基準に探す。
-
-```bash
-find "$(git rev-parse --show-toplevel)" -maxdepth 3 -type f \
-  -ipath '*pull_request_template*' -not -path '*/.git/*'
-```
-
-見つかったテンプレートが複数あれば（`.github/PULL_REQUEST_TEMPLATE/` に複数ある場合など）、すべて読み、どれを使うかを1回だけユーザーに聞く。見つからなければユーザーにその旨を伝え、このスキルのテンプレートを使う。
-
-リポジトリのテンプレートを使う場合は、その見出し構成を骨格にして各セクションを diff の内容で埋める。テンプレートが記入方法を明示している項目はその指示に従い、指示のない部分だけ次のステップのガイドラインを適用する。図解、ELI5 の `<details>`、末尾の `🤖 Generated with AI` 行は、どちらのテンプレートでも入れる。
-
-完了条件: 使うテンプレートが1つに決まっている。
-
-## 8. Description の生成
-
-diff を分析し、日本語の description を書く。設計判断や背景の「なぜ」を軸にし、コードの羅列ではなく意図が伝わる記述にする。テンプレートと各セクションの書き方は [`references/description.md`](references/description.md) を読んでから書く。リポジトリのテンプレートを選んだ場合は、そちらの見出しを骨格にし、ガイドラインはテンプレートの指示がない部分にだけ適用する。
-
-description を書き上げたら、リポジトリ外の一時ファイルに保存する（`git status` を汚さないため）。
-
-```bash
-mktemp -d
-```
-
-出力されたディレクトリ配下に pr-body.md として本文を書き出す。シェル変数はコマンド間で引き継がれないため、以降のステップでは書き出した実パスをそのまま書く。
-
-保存したパスを渡して Skill ツールで `sanitize-doc` を発動する。
-
-今回の変更を対象に Skill ツールで `eli5` を発動する。得た説明を、保存したファイルの ELI5 の `<details>` に書き込む。ブロックが無ければ、[`references/description.md`](references/description.md) の `<details>` と同じマークアップを、自然文の直後（Summary が無ければ本文先頭）へ追加してから書き込む。
-
-以降のステップは、このファイルの内容を PR 本文として扱う。
-
-完了条件: テンプレートの各セクションが埋まっているか意図的に省略されていて、その本文がファイルに保存され、`sanitize-doc` を適用済みであり、その後に発動した `eli5` の出力が、保存したファイルの ELI5 の `<details>` に入っている。
-
-## 9. PR の作成 / 更新
-
-新規モードでは draft で作成する。
+draft で作成する。タイトルと `--body-file` にはステップ4の値を使う。
 
 ```bash
 gh pr create --draft --base <リモート名を除いた base> --title "<title>" --body-file <本文ファイルの実パス> --assignee @me
 ```
 
-更新モードでは既存 PR のタイトルと本文を差し替える。
+完了条件: PR が作成され、その URL が得られている。
 
-```bash
-gh pr edit <PR番号> --title "<title>" --body-file <本文ファイルの実パス>
-```
+## 6. 結果の報告
 
-完了条件: PR が作成または更新され、その URL が得られている。
-
-## 10. 結果の報告
-
-PR URL、base ブランチ、タイトル、新規作成か更新かを報告する。
+PR URL、base ブランチ、タイトルを報告する。
