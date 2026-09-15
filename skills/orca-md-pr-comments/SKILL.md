@@ -47,7 +47,7 @@ gh api "repos/{owner}/{repo}/contents/{path}?ref={HEAD_SHA}" --jq .content \
   | python3 -c "import sys,base64; sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))"
 ```
 
-用意したパス対応（ペイロードの `file` → 読むパス）とペイロードを渡して Skill ツールで `orca-md-resolve` を発動する。投稿に使う行は、その結果の各件の `resolved` 行（スクリプト JSON なら `start_line` / `end_line`）である。
+用意したパス対応（ペイロードの `file` → 読むパス）とペイロードを渡して Skill ツールで `orca-md-resolve` を発動する。投稿に使う行は、その報告の各件の `resolved` 範囲である。
 
 完了条件: 全件について PR head と同じ本文を読むパスが決まっており、`orca-md-resolve` が終わり、全件が resolved / ambiguous / not_found のいずれかに分かれている。
 

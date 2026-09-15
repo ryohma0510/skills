@@ -1,6 +1,6 @@
 ---
 name: orca-md-resolve
-description: Orca の Markdown レビューコメント（File / Lines / Excerpt）から、作業ツリー上の正しい行を特定する。reported lines がズレているとき、「行を特定して」「どこか教えて」と言われたとき、ペイロードを貼ってローカルで直すとき、他のスキルが行特定を必要とするときに使う。GitHub への投稿はしない。
+description: Orca の Markdown レビューコメント（File / Lines / Excerpt）から、作業ツリー上の正しい行を特定する。reported lines がズレているとき、「行を特定して」「どこか教えて」と言われたとき、ペイロードを貼ってローカルで直すとき、他のスキルが行特定を必要とするときに使う。
 trigger: /orca-md-resolve
 argument-hint: "Orca のペイロード"
 ---
