@@ -1,6 +1,6 @@
 # 例
 
-行特定の手順は `scripts/resolve-excerpt-lines.py` が正本。ここは入出力の形だけを示す。
+行特定は `orca-md-resolve` が正本。ここは投稿意図と投稿本文の形だけを示す。
 
 ## 投稿意図があるペイロード
 
@@ -16,19 +16,7 @@ Excerpt:
 User comment: "ここを直してほしい"
 ```
 
-`reported lines` は 160-172。本文の該当は次の1行（例では162行目）。
-
-```
-- [ ] **AC-026** 明示的な保存操作により、入力項目順序設定がテナント単位で 1 セット保存されることを確認できる（注記）
-```
-
-resolve の結果:
-
-```json
-{"status":"resolved","start_line":162,"end_line":162,"confidence":"high","match_method":"substring"}
-```
-
-投稿は `line=162` のみ。`start_line` は付けない。
+`orca-md-resolve` が `docs/spec.md:162` を返したとする。投稿は `line=162` のみ。`start_line` は付けない。
 
 投稿本文の例: `AC-026 の「テナント単位で 1 セット保存されること」を直してほしい。`
 
@@ -36,7 +24,7 @@ resolve の結果:
 
 ## このスキルを進めないペイロード
 
-実装中に同じ形を貼っただけなら、行特定も投稿もしない。
+実装中に同じ形を貼っただけなら、行特定も投稿もしない。行だけ知りたいときは `orca-md-resolve` を使う。
 
 ```
 File: docs/spec.md
@@ -44,14 +32,4 @@ Lines 160-172
 Excerpt:
 │ 明示的な保存操作により、入力項目順序設定がテナント単位で 1 セット保存されることを確認で
 User comment: "ここを直してほしい"
-```
-
-## スクリプト
-
-```bash
-python3 scripts/resolve-excerpt-lines.py parse < payload.txt
-python3 scripts/resolve-excerpt-lines.py resolve \
-  --file docs/spec.md \
-  --excerpt '明示的な保存操作により、入力項目順序設定がテナント単位で 1 セット保存されることを確認で' \
-  --hint-start 160 --hint-end 172
 ```
