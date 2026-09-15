@@ -7,9 +7,9 @@ argument-hint: "Orca のペイロード。対象 PR は省略可"
 
 # Orca Markdown → PR inline comment
 
-`excerpt` が source of truth。`reported lines` は hint。投稿先はファイル行に付く inline comment。
+投稿先はファイル行に付く inline comment。行の決め方は `orca-md-resolve` が正本。
 
-ペイロード例と行特定例は、パースやマッチの具体形が要るときに [examples.md](examples.md) を読む。
+投稿本文の整え方の例は、具体形が要るときに [examples.md](examples.md) を読む。
 
 ## 1. 投稿意図
 
@@ -22,19 +22,7 @@ argument-hint: "Orca のペイロード。対象 PR は省略可"
 
 完了条件: 投稿意図があると言えた。無ければこのスキルを終えている。
 
-## 2. パース
-
-ユーザーが貼った文面を、次のスクリプトでコメントの配列にする。複数件を最初から扱う。
-
-```bash
-python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py parse
-```
-
-標準入力にペイロードを渡す。各要素の `hint_start` / `hint_end` が reported lines。`excerpt` は引用記号を外した選択テキスト。`user_comment` は投稿の種。
-
-完了条件: コメント配列があり、各件に `file` と `excerpt` がある。`user_comment` が空の件は skipped として残す。
-
-## 3. 対象 PR
+## 2. 対象 PR
 
 URL または番号があればそれを使う。省略時は現在ブランチの PR。
 
@@ -47,29 +35,23 @@ gh pr list --head "$(git branch --show-current)" --json number,url,headRefOid
 
 完了条件: owner / repo / PR 番号 / head SHA が1組に決まっている。
 
-## 4. resolved line
+## 3. 行特定
 
-行特定の対象は `commit_id` と同じ PR head のファイル。`git rev-parse HEAD` がその SHA と一致し、作業ツリーにファイルがあるならそれを読む。それ以外は PR head から取る。
+行特定の対象は `commit_id` と同じ PR head のファイル。ペイロードの各 `File` について、読む本文を次のどちらかで用意する。
+
+- `git rev-parse HEAD` が head SHA と一致し、作業ツリーにそのファイルがある → そのパスを使う
+- それ以外 → PR head から取り、一時ファイルに書く
 
 ```bash
 gh api "repos/{owner}/{repo}/contents/{path}?ref={HEAD_SHA}" --jq .content \
   | python3 -c "import sys,base64; sys.stdout.buffer.write(base64.b64decode(sys.stdin.read()))"
 ```
 
-```bash
-python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py resolve \
-  --file <path> --excerpt <excerpt> --hint-start <hint_start> --hint-end <hint_end>
-```
+用意したパス対応（ペイロードの `file` → 読むパス）とペイロードを渡して Skill ツールで `orca-md-resolve` を発動する。投稿に使う行は、その報告の各件の `resolved` 範囲である。
 
-`--file` は上で得た本文を一時ファイルに書いたパスでもよい。行特定はこのスクリプトに任せる。
+完了条件: 全件について PR head と同じ本文を読むパスが決まっており、`orca-md-resolve` が終わり、全件が resolved / ambiguous / not_found のいずれかに分かれている。
 
-- `status=resolved` → `start_line` / `end_line` を採用する。1行なら両方同じ。
-- `status=ambiguous` → 投稿せず、`candidates` を出して選ばせる。
-- `status=not_found` → 投稿せず、理由を残す。
-
-完了条件: 全件が resolved / ambiguous / not_found のいずれかに分かれている。投稿に使う行はスクリプトの `start_line` / `end_line` である。
-
-## 5. 投稿本文
+## 4. 投稿本文
 
 `user_comment` を、指示として読める文に整える。対象は excerpt から補う。新しい指摘・理由・装飾・会話の名残は足さない。excerpt は引用しない。
 
@@ -77,7 +59,7 @@ python3 <このスキルのディレクトリ>/scripts/resolve-excerpt-lines.py 
 
 完了条件: 各 resolved かつ `user_comment` がある件に、元の `user_comment` と投稿本文の両方がある。
 
-## 6. 投稿
+## 5. 投稿
 
 resolved かつ `user_comment` がある件を、同一ターンで GitHub の review comment として投稿する。
 
@@ -121,7 +103,7 @@ API が diff 外を理由に失敗したら、その失敗を返す。近い変�
 
 完了条件: resolved の各件について、コメント URL があるか、失敗理由がある。
 
-## 7. 報告
+## 6. 報告
 
 件ごとに次を出す。
 
