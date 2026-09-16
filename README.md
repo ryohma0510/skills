@@ -83,7 +83,7 @@ skills/
 | [orca-md-resolve](skills/orca-md-resolve/SKILL.md) | Orca の Markdown レビューコメントを excerpt から作業ツリー上の正しい行に特定する（投稿はしない） |
 | [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定のうえ draft PR を作成する。タイトルと description は `pr-description` に任せる |
 | [pr-description](skills/pr-description/SKILL.md) | diff から日本語のタイトルと description を生成し、既存 PR があれば差し替え、無ければ本文ファイルとして返す |
-| [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに対応する。対応要否の判断・同種箇所への横展開・返信・自分と Bot のスレッドの resolve まで行う |
+| [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに返信する。未対応スレッドの収集・返信文の作成・投稿まで行う（コードは直さない） |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
 | [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正する。既定2周。1周目は Cursor の GPT、2周目はホスト（ホストが GPT 系なら Claude） |
 | [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。装飾文言と会話の名残の両方をまとめて削る |
