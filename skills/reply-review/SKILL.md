@@ -159,13 +159,39 @@ git log <控えた SHA>..HEAD --format='<PR の URL から /pull/ 以降を落�
 
 ステップ5で整形したファイルを本文として投稿する。
 
-スレッドへの返信:
+スレッドへの返信は1件ずつ投稿し、公開を確認してから次の mutation を実行する。複数件を同時に投げると、先頭以外が GraphQL 上は `COMMENTED` でも REST から見えず Pending のまま残ることがある。公開の判定は REST 取得の終了コードが 0 であること。`pullRequestReview.state` や `submittedAt` だけでは判定しない。
 
 ```bash
 gh api graphql -f query='
 mutation($threadId:ID!,$body:String!){
-  addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$threadId,body:$body}){comment{url}}
+  addPullRequestReviewThreadReply(input:{pullRequestReviewThreadId:$threadId,body:$body}){
+    comment{
+      id
+      databaseId
+      url
+      pullRequestReview{
+        databaseId
+        state
+        submittedAt
+      }
+    }
+  }
 }' -f threadId=<thread id> -f body="$(cat <返信ファイルの実パス>)"
+```
+
+mutation の結果から `comment.id` と `comment.databaseId` を取る。直後に REST で公開を確認する。
+
+```bash
+gh api repos/<owner>/<repo>/pulls/comments/<databaseId> --silent
+```
+
+REST が 404 なら、そのコメントは未公開である。`comment.id` を渡して削除し、同じ本文をもう一度投稿して REST を取り直す。1件あたり再試行は3回まで。3回とも 404 ならその件は失敗として残し、次の件へ進む。
+
+```bash
+gh api graphql -f query='
+mutation($id:ID!){
+  deletePullRequestReviewComment(input:{id:$id}){pullRequestReviewComment{id}}
+}' -f id=<comment id>
 ```
 
 スレッド外のレビュー本文・PR コメントへの返信:
@@ -174,7 +200,7 @@ mutation($threadId:ID!,$body:String!){
 gh pr comment <number> --body-file <返信ファイルの実パス>
 ```
 
-完了条件: ステップ1で対象にしたスレッドとスレッド外のコメントのすべてに返信が付いている。
+完了条件: ステップ1の対象それぞれについて、スレッド返信は REST 取得が成功した URL があるか失敗理由があり、スレッド外は返信が付いている。
 
 ## 7. resolve
 
