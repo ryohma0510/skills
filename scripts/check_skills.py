@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Deterministic checks for skills/*/SKILL.md (S01-S10, S13-S16, S18) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
+"""Deterministic checks for skills/*/SKILL.md (S01-S10, S13-S16, S18, S21) and .apm primitives (S19-S20). Stdlib only, manual invocation."""
 
 import json
 import os
@@ -170,6 +170,47 @@ def check_description(frontmatter, findings):
                 f"description が{len(description)}文字あります（上限{MAX_DESCRIPTION_LEN}文字）",
             )
         )
+
+
+def _is_quoted_scalar(value):
+    return len(value) >= 2 and value[0] == value[-1] and value[0] in ("'", '"')
+
+
+def check_frontmatter_yaml_safe(text, findings):
+    """素朴パーサでは通るが本物の YAML では壊れる frontmatter を検出する (S21)。
+
+    典型例: クォートなし description に「トリガー: /foo」のような ':' が入っている場合。
+    """
+    lines = text.split("\n")
+    if not lines or lines[0].strip() != "---":
+        return
+    end_idx = None
+    for i in range(1, len(lines)):
+        if lines[i].strip() == "---":
+            end_idx = i
+            break
+    if end_idx is None:
+        return
+
+    for lineno, line in enumerate(lines[1:end_idx], start=2):
+        match = FRONTMATTER_KEY_RE.match(line)
+        if not match:
+            continue
+        key, value = match.group(1), match.group(2).strip()
+        if not value or value in (">-", ">", "|", "|-", "|+"):
+            continue
+        if _is_quoted_scalar(value):
+            continue
+        # 未クォートスカラーに ':' があると mapping として解釈され ScannerError になる
+        if ": " in value or value.rstrip().endswith(":"):
+            findings.append(
+                Finding(
+                    "S21",
+                    "error",
+                    f"L{lineno}: frontmatter の {key} がクォートなしで ':' を含み、"
+                    "YAML として読めません。値をダブルクォートで囲んでください",
+                )
+            )
 
 
 def check_description_no_caller_naming(name, frontmatter, findings):
@@ -434,6 +475,7 @@ def check_skill(skill_dir):
 
     check_name(frontmatter, findings)
     check_description(frontmatter, findings)
+    check_frontmatter_yaml_safe(text, findings)
     check_description_no_caller_naming(name, frontmatter, findings)
     check_body_length(body, findings)
     check_references(skill_dir, body, findings)
