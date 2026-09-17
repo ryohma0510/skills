@@ -77,7 +77,7 @@ skills/
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
-| [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする |
+| [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする。既定は同一マシン、指定時は別マシン向け |
 | [implement](skills/implement/SKILL.md) | 実装作業の入り口。`tdd` でテストファーストに進め、`code-comments` でコメント品質を確認し、完了後に `pr-create` と `review-loop` を実行する |
 | [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを GitHub PR の inline comment として投稿する（明示的な投稿指示時のみ。行特定は orca-md-resolve） |
 | [orca-md-resolve](skills/orca-md-resolve/SKILL.md) | Orca の Markdown レビューコメントを excerpt から作業ツリー上の正しい行に特定する（投稿はしない） |
