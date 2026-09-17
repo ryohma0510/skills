@@ -33,7 +33,7 @@ query($owner:String!,$repo:String!,$pr:Int!){
           id isResolved isOutdated path line
           comments(first:100){
             pageInfo{hasNextPage endCursor}
-            nodes{author{login,__typename} body url createdAt}
+            nodes{author{login} body url createdAt}
           }
         }
       }
@@ -55,7 +55,7 @@ query($threadId:ID!,$cursor:String!){
     ... on PullRequestReviewThread{
       comments(first:100, after:$cursor){
         pageInfo{hasNextPage endCursor}
-        nodes{author{login,__typename} body url createdAt}
+        nodes{author{login} body url createdAt}
       }
     }
   }
@@ -107,11 +107,6 @@ mutation($threadId:ID!,$body:String!){
       id
       databaseId
       url
-      pullRequestReview{
-        databaseId
-        state
-        submittedAt
-      }
     }
   }
 }' -f threadId=<thread id> -f body="$(cat <返信ファイルの実パス>)"
