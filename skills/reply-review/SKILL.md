@@ -33,7 +33,7 @@ query($owner:String!,$repo:String!,$pr:Int!){
           id isResolved isOutdated path line
           comments(first:100){
             pageInfo{hasNextPage endCursor}
-            nodes{author{login} body url createdAt}
+            nodes{id databaseId author{login} body url createdAt}
           }
         }
       }
@@ -55,7 +55,7 @@ query($threadId:ID!,$cursor:String!){
     ... on PullRequestReviewThread{
       comments(first:100, after:$cursor){
         pageInfo{hasNextPage endCursor}
-        nodes{author{login} body url createdAt}
+        nodes{id databaseId author{login} body url createdAt}
       }
     }
   }
@@ -65,7 +65,9 @@ query($threadId:ID!,$cursor:String!){
 次のスレッドは対象外にする。
 
 - `isResolved` が true
-- `comments.nodes` の最後が自分の返信であるもの。前回の実行で返信済みで、指摘者からの反応がまだない。
+- `comments.nodes` の最後が自分の返信で、その `databaseId` の REST 取得が終了コード 0 のもの。公開済みで、指摘者からの反応がまだない。
+
+最後が自分の返信でも REST が 404 なら未公開である。その `id` で削除し、対象に残す。REST の取り方と削除はステップ3と同じ。
 
 スレッドに紐づかないレビュー本文や PR コメントも指摘を含むことがある。次で拾う。
 
@@ -118,7 +120,7 @@ mutation の結果から `comment.id` と `comment.databaseId` を取る。直�
 gh api repos/<owner>/<repo>/pulls/comments/<databaseId> --silent
 ```
 
-REST が 404 なら、そのコメントは未公開である。`comment.id` を渡して削除し、同じ本文をもう一度投稿して REST を取り直す。1件あたり再試行は3回まで。3回とも 404 ならその件は失敗として残し、次の件へ進む。
+終了コードが 0 なら公開済み。HTTP 404 なら未公開なので `comment.id` を渡して削除する。再試行が残っていれば同じ本文をもう一度投稿して REST を取り直す。1件あたり再試行は3回まで。3回とも 404 なら、最後の未公開コメントも削除したうえで失敗として残し、次の件へ進む。404 以外の失敗は削除せず、失敗理由を残して次の件へ進む。
 
 ```bash
 gh api graphql -f query='
