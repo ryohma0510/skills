@@ -63,7 +63,7 @@ skills/
         └── assets/          # 任意。出力に使うテンプレート・アイコン等
 ```
 
-- `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
+- `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。値に `:` を含む場合はダブルクォートで囲む(`scripts/check_skills.py` の S21 が検査する)。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
 - `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと path 限定ルールになり、ルートコンテキストには載らない(`scripts/check_skills.py` の S19 が検査する)。
 - `.apm/hooks/*.json` の command は `./スクリプト`（JSON と同じディレクトリ）または `${PLUGIN_ROOT}/...` の実行可能ファイルを指す(`scripts/check_skills.py` の S20 が検査する)。
@@ -77,16 +77,17 @@ skills/
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
-| [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする |
+| [handoff](skills/handoff/SKILL.md) | 会話を要約し、次のエージェント/セッションが引き継げるドキュメントにする。既定は同一マシン、指定時は別マシン向け |
 | [implement](skills/implement/SKILL.md) | 実装作業の入り口。`tdd` でテストファーストに進め、`code-comments` でコメント品質を確認し、完了後に `pr-create` と `review-loop` を実行する |
 | [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを GitHub PR の inline comment として投稿する（明示的な投稿指示時のみ。行特定は orca-md-resolve） |
 | [orca-md-resolve](skills/orca-md-resolve/SKILL.md) | Orca の Markdown レビューコメントを excerpt から作業ツリー上の正しい行に特定する（投稿はしない） |
+| [plain-vocab](skills/plain-vocab/SKILL.md) | 文章の語彙を平易にする。硬語・場違いな専門語・分かりにくい外来語・スタイルのための日英混在（ルー大柴調）を直す |
 | [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定のうえ draft PR を作成する。タイトルと description は `pr-description` に任せる |
 | [pr-description](skills/pr-description/SKILL.md) | diff から日本語のタイトルと description を生成し、既存 PR があれば差し替え、無ければ本文ファイルとして返す |
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに返信する。未対応スレッドの収集・返信文の作成・投稿まで行う（コードは直さない） |
 | [review](skills/review/SKILL.md) | 変更差分をレビューし、バグや改善点を深刻度順に整形して表示する |
 | [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正する。既定2周。1周目は Cursor の GPT、2周目はホスト（ホストが GPT 系なら Claude） |
-| [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。装飾文言と会話の名残の両方をまとめて削る |
+| [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。語彙の平易化・装飾文言・会話の名残をまとめて直す |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | Predictable なスキルを書くための語彙と原則。スキルの作成・編集・診断時に参照する |
 | [tdd](skills/tdd/SKILL.md) | red → green のループを回す手順。seam の確定・red・green の各ステップと vertical slice |
 | [test-design](skills/test-design/SKILL.md) | 良いテストの設計。seam でのテスト、DAMP、should/when 命名と Given-When-Then、アンチパターン、モックの境界。規約違反を検出する lint スクリプトを同梱 |
