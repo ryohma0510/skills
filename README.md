@@ -63,7 +63,7 @@ skills/
         └── assets/          # 任意。出力に使うテンプレート・アイコン等
 ```
 
-- `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。
+- `SKILL.md` の `description` には、いつ使うか(トリガー条件)と何をするかを具体的に書く。値に `:` を含む場合はダブルクォートで囲む(`scripts/check_skills.py` の S21 が検査する)。
 - `SKILL.md` 本体は 500 行程度に収め、肥大化する場合は `references/` に分割する。
 - `.apm/instructions/*.instructions.md` の frontmatter は `description` のみ。`applyTo` を書くと path 限定ルールになり、ルートコンテキストには載らない(`scripts/check_skills.py` の S19 が検査する)。
 - `.apm/hooks/*.json` の command は `./スクリプト`（JSON と同じディレクトリ）または `${PLUGIN_ROOT}/...` の実行可能ファイルを指す(`scripts/check_skills.py` の S20 が検査する)。
