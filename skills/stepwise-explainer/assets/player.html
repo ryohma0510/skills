@@ -12,11 +12,17 @@
       --muted: #5c6777;
       --line: #d5dce8;
       --tab: #e8edf6;
-      --el-a: #2563eb;
-      --el-b: #7c3aed;
-      --el-c: #0f9f6e;
-      --warn: #c2410c;
-      --danger: #b42318;
+      --el-a: #d5dee8;
+      --el-a-ink: #314354;
+      --el-b: #ddd8e4;
+      --el-b-ink: #433c4f;
+      --el-c: #d5e0d9;
+      --el-c-ink: #31463c;
+      --warn: #7a6248;
+      --danger: #7a4e4a;
+      --tag-before: #e6d9d6;
+      --callout-fix-bg: #f3eeec;
+      --callout-note-bg: #f2eee8;
       --code-bg: #1e2430;
       --code-text: #e8edf6;
     }
@@ -72,9 +78,9 @@
     }
 
     .tabs button.is-current {
-      color: #fff;
+      color: var(--el-a-ink);
       background: var(--el-a);
-      border-color: var(--el-a);
+      border-color: color-mix(in srgb, var(--el-a-ink) 28%, var(--el-a));
     }
 
     main {
@@ -112,13 +118,13 @@
       display: inline-block;
       border-radius: 8px;
       padding: 6px 10px;
-      color: #fff;
       font-weight: 600;
+      border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
     }
 
-    .el-a { background: var(--el-a); }
-    .el-b { background: var(--el-b); }
-    .el-c { background: var(--el-c); }
+    .el-a { background: var(--el-a); color: var(--el-a-ink); }
+    .el-b { background: var(--el-b); color: var(--el-b-ink); }
+    .el-c { background: var(--el-c); color: var(--el-c-ink); }
 
     .pair {
       display: grid;
@@ -145,8 +151,8 @@
       margin-bottom: 8px;
     }
 
-    .tag-before { background: #fee4e2; color: var(--danger); }
-    .tag-after { background: #d1fadf; color: var(--el-c); }
+    .tag-before { background: var(--tag-before); color: var(--danger); }
+    .tag-after { background: var(--el-c); color: var(--el-c-ink); }
 
     pre.code {
       margin: 12px 0;
@@ -158,20 +164,26 @@
       font: 13px/1.5 ui-monospace, monospace;
     }
 
-    .tok-a { color: #93c5fd; }
-    .tok-b { color: #c4b5fd; }
-    .tok-c { color: #6ee7b7; }
+    .tok-a { color: #9db4c9; }
+    .tok-b { color: #b5adc4; }
+    .tok-c { color: #a3b8aa; }
 
     .callout-fix,
     .callout-note {
       border-radius: 8px;
       padding: 12px 12px 12px 14px;
       margin: 12px 0;
-      background: var(--bg);
     }
 
-    .callout-fix { border-left: 4px solid var(--danger); }
-    .callout-note { border-left: 4px solid var(--warn); }
+    .callout-fix {
+      border-left: 4px solid var(--danger);
+      background: var(--callout-fix-bg);
+    }
+
+    .callout-note {
+      border-left: 4px solid var(--warn);
+      background: var(--callout-note-bg);
+    }
 
     .rules {
       margin: 0;
