@@ -89,6 +89,7 @@ skills/
 | [review-loop](skills/review-loop/SKILL.md) | サブエージェントに `review` を実行させ、確信度の高い指摘を自分で修正する。既定2周。1周目は Cursor の GPT、2周目はホスト（ホストが GPT 系なら Claude） |
 | [sanitize-doc](skills/sanitize-doc/SKILL.md) | 文章を完成品として仕上げ直す。語彙の平易化・装飾文言・会話の名残をまとめて直す |
 | [skill-design-principles](skills/skill-design-principles/SKILL.md) | Predictable なスキルを書くための語彙と原則。スキルの作成・編集・診断時に参照する |
+| [stepwise-explainer](skills/stepwise-explainer/SKILL.md) | 理解度を確認したうえで、段階的な HTML 図解で説明する（名前を指定して呼び出す） |
 | [tdd](skills/tdd/SKILL.md) | red → green のループを回す手順。seam の確定・red・green の各ステップと vertical slice |
 | [test-design](skills/test-design/SKILL.md) | 良いテストの設計。seam でのテスト、DAMP、should/when 命名と Given-When-Then、アンチパターン、モックの境界。規約違反を検出する lint スクリプトを同梱 |
 | [trim-ai-smell](skills/trim-ai-smell/SKILL.md) | Markdown から装飾文言(煽り・脅し、唯一の記述への強調、意味を変えない強度副詞など)を削る。新規執筆時にも常に適用する |
