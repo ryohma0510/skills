@@ -57,20 +57,22 @@ argument-hint: 説明する対象
 
 骨組み（タブ、前へ／次へ、左右キー、色、狭い画面で1列）はそのまま使う。チャットと図解の文言は、ユーザーが使っている言語に合わせる。骨組みの「前へ／次へ」、`html` の `lang`、タブナビの `aria-label` もその言語にする。
 
-`#doc-title` と `<title>` を対象の題にする。`#panels` の中に `section.step` を置く。`data-title` がタブの文言。
+`#doc-title` と `<title>` を対象の題にする。`#doc-lead` にページ全体の一文を入れる。`#panels` の中に `section.step` を置く。`data-title` はタブ用の短い名。各ステップに `h2` を1つ（番号は骨組みが付ける）。
 
 各ステップの中身は次の形にする。
 
-- `.lead` は1文まで（目安は40字）
-- その下は `.flow` / `.pair` / `.demo` / `.callout-fix` / `.callout-note` のいずれか。仕組みが厚いステップには `.demo` を置く
-- チップ・タグ・表・短いコード片はラベルとして使ってよい。段落で仕組みを書かない
+- `h2` の下の `.lead` は1文まで（目安は40字）
+- その下は `.lane`（中に `.flow` と `.node`）/ `.demo` / `.rules` / `.callout-fix` / `.callout-note`。仕組みが厚いステップには `.demo` を置く
+- 比べるときは `.lane-before` と `.lane-after` を上下に並べ、`.tag-before` / `.tag-after` を付ける
+- 図の下の補足は `.caption` 1行まで
+- 操作の選択肢は `.pills`、並びの見本は `.row`、番号付きの規則は `.rules`
 - 再描画は入力要素の `oninput` など、その要素に書いた処理で行う。結果を出す要素だけを書き換え、入力を含む塊を丸ごと差し替えない
-- 最初のステップは全体像（`.lead` 1文と `.flow`）。そのあとは厚い層から足す
-- 比べるときは `.tag-before` / `.tag-after`
+- 最初のステップは全体像。そのあとは厚い層から足す
+- 段落で仕組みを書かない
 
 色と部品のクラスは、コピー元の `assets/player.html` の CSS を正とする。
 
-完了条件: 各 `section.step` に `.lead` が1つあり、`.flow` / `.pair` / `.demo` / `.callout-fix` / `.callout-note` のどれかがある。`.lead` 以外の `p` が2つ以上あるステップは未完了。`#panels` が空、またはコメントだけの状態で終わっていない。
+完了条件: 各 `section.step` に `h2` があり、`.lane` / `.demo` / `.rules` / `.callout-fix` / `.callout-note` のどれかがある。`.lead` と `.caption` 以外の `p` が2つ以上あるステップは未完了。`#panels` が空、またはコメントだけの状態で終わっていない。
 
 ## 5. チャットに返す
 

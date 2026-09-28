@@ -6,17 +6,18 @@
   <title>図解</title>
   <style>
     :root {
-      --bg: #eef1f7;
+      --bg: #f4f6fb;
       --surface: #fff;
-      --text: #1c2430;
-      --muted: #5c6777;
-      --line: #d5dce8;
-      --tab: #e8edf6;
+      --text: #1b2430;
+      --muted: #667085;
+      --line: #e4e8f0;
       --el-a: #2563eb;
       --el-b: #7c3aed;
-      --el-c: #0f9f6e;
-      --warn: #c2410c;
-      --danger: #b42318;
+      --el-c: #12b76a;
+      --warn: #f79009;
+      --danger: #d92d20;
+      --before: #ecfdf3;
+      --after: #fff6ed;
       --code-bg: #1e2430;
       --code-text: #e8edf6;
     }
@@ -25,50 +26,55 @@
 
     body {
       margin: 0;
-      font: 16px/1.6 system-ui, sans-serif;
+      font: 15px/1.6 system-ui, sans-serif;
       color: var(--text);
       background: var(--bg);
     }
 
     .top {
-      padding: 20px 20px 12px;
-      max-width: 960px;
+      padding: 28px 28px 8px;
+      max-width: 880px;
       margin: 0 auto;
     }
 
     .top h1 {
       margin: 0;
-      font-size: 1.35rem;
-      line-height: 1.3;
+      font-size: 1.45rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.35;
     }
+
+    .kicker {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .kicker:empty { display: none; }
 
     .tabs {
       position: sticky;
       top: 0;
       z-index: 2;
       display: flex;
-      gap: 8px;
-      padding: 8px 20px;
-      max-width: 960px;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 12px 28px 16px;
+      max-width: 880px;
       margin: 0 auto;
       background: var(--bg);
-      overflow-x: auto;
     }
 
     .tabs button {
       flex: 0 0 auto;
       border: 1px solid var(--line);
-      background: var(--tab);
+      background: var(--surface);
       color: var(--muted);
       border-radius: 999px;
-      padding: 6px 14px;
-      font: inherit;
+      padding: 5px 12px;
+      font: 13px/1.3 system-ui, sans-serif;
       cursor: pointer;
-    }
-
-    .tabs button.is-seen {
-      color: var(--text);
-      background: var(--surface);
     }
 
     .tabs button.is-current {
@@ -78,87 +84,135 @@
     }
 
     main {
-      max-width: 960px;
+      max-width: 880px;
       margin: 0 auto;
-      padding: 8px 20px 96px;
+      padding: 0 28px 120px;
     }
 
-    .step {
-      background: var(--surface);
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      padding: 20px;
+    .step { background: transparent; }
+
+    .step h2 {
+      margin: 0 0 8px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
     }
 
-    .step > *:first-child { margin-top: 0; }
-    .step > *:last-child { margin-bottom: 0; }
-
-    .lead { font-size: 1.05rem; }
-
-    .step > p:not(.lead) {
+    .lead {
+      margin: 0 0 16px;
+      color: var(--muted);
       font-size: 0.95rem;
+    }
+
+    .step > p:not(.lead):not(.caption) {
+      font-size: 0.9rem;
       color: var(--muted);
     }
 
-    .flow {
+    .caption {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+    }
+
+    .lane {
+      margin: 12px 0;
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: #eef4ff;
+    }
+
+    .lane-before { background: var(--before); }
+    .lane-after { background: var(--after); }
+
+    .lane-head {
       display: flex;
-      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
-      margin: 16px 0;
-    }
-
-    .flow .arrow {
-      color: var(--muted);
-      font-size: 1.2rem;
-    }
-
-    .chip {
-      display: inline-block;
-      border-radius: 8px;
-      padding: 6px 10px;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .el-a { background: var(--el-a); }
-    .el-b { background: var(--el-b); }
-    .el-c { background: var(--el-c); }
-
-    .pair {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-      margin: 16px 0;
-    }
-
-    .box {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 12px;
-      background: var(--bg);
+      margin-bottom: 10px;
+      font-weight: 700;
     }
 
     .tag-before,
     .tag-after {
       display: inline-block;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       font-weight: 700;
-      letter-spacing: 0.04em;
       border-radius: 4px;
-      padding: 2px 8px;
-      margin-bottom: 8px;
+      padding: 2px 7px;
     }
 
-    .tag-before { background: #fee4e2; color: var(--danger); }
-    .tag-after { background: #d1fadf; color: var(--el-c); }
+    .tag-before { background: #abefc6; color: #087443; }
+    .tag-after { background: #fdc7a0; color: #b54708; }
+
+    .flow {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .flow .arrow {
+      display: flex;
+      align-items: center;
+      color: var(--muted);
+      font-size: 1.15rem;
+    }
+
+    .node {
+      flex: 1 1 140px;
+      min-width: 120px;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.85);
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.88rem;
+      line-height: 1.4;
+    }
+
+    .node small {
+      display: block;
+      margin-top: 4px;
+      font-weight: 400;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .el-a { outline: 2px solid var(--el-a); }
+    .el-b { outline: 2px solid var(--el-b); }
+    .el-c { outline: 2px solid var(--el-c); }
+
+    .chip {
+      display: inline-block;
+      border-radius: 8px;
+      padding: 4px 10px;
+      background: #e8edf6;
+      font-size: 0.8rem;
+      font-weight: 600;
+    }
+
+    .pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .box {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px;
+      background: var(--surface);
+    }
 
     pre.code {
       margin: 12px 0;
       padding: 12px 14px;
       background: var(--code-bg);
       color: var(--code-text);
-      border-radius: 8px;
+      border-radius: 10px;
       overflow-x: auto;
       font: 13px/1.5 ui-monospace, monospace;
     }
@@ -169,34 +223,82 @@
 
     .callout-fix,
     .callout-note {
-      border-radius: 8px;
-      padding: 12px 12px 12px 14px;
+      border-radius: 12px;
+      padding: 12px 14px;
       margin: 12px 0;
-      background: var(--bg);
+      background: var(--surface);
     }
 
     .callout-fix { border-left: 4px solid var(--danger); }
     .callout-note { border-left: 4px solid var(--warn); }
 
     .rules {
-      margin: 0;
-      padding-left: 1.2em;
+      margin: 12px 0 0;
+      padding: 14px 16px;
+      list-style: none;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 14px;
     }
 
-    .rules li { margin: 6px 0; }
+    .rules li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin: 10px 0;
+      line-height: 1.5;
+    }
+
+    .rules li::before {
+      content: counter(rule);
+      counter-increment: rule;
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #f79009;
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+
+    .rules { counter-reset: rule; }
 
     .demo {
-      margin-top: 16px;
-      padding: 14px;
-      border: 1px dashed var(--line);
-      border-radius: 10px;
+      margin-top: 12px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--surface);
     }
 
-    .demo label {
+    .pills {
       display: flex;
-      gap: 8px;
+      flex-wrap: wrap;
+      gap: 8px 14px;
       align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .pills label {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      font-size: 0.88rem;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
       margin: 8px 0;
+      font-size: 0.82rem;
+      color: var(--muted);
     }
 
     .pager {
@@ -207,50 +309,67 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 16px;
-      padding: 12px;
-      background: rgba(238, 241, 247, 0.95);
-      border-top: 1px solid var(--line);
+      gap: 28px;
+      padding: 14px;
+      background: rgba(244, 246, 251, 0.92);
     }
 
     .pager button {
-      min-width: 96px;
-      border: 1px solid var(--line);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 8px 16px;
-      font: inherit;
+      min-width: 88px;
+      border: 0;
+      background: var(--el-a);
+      color: #fff;
+      border-radius: 10px;
+      padding: 9px 16px;
+      font: 14px/1 system-ui, sans-serif;
       cursor: pointer;
     }
 
     .pager button:disabled {
-      opacity: 0.4;
+      opacity: 0.35;
       cursor: not-allowed;
     }
 
-    #pos { color: var(--muted); font-size: 0.9rem; }
+    #dots {
+      display: flex;
+      gap: 7px;
+      align-items: center;
+    }
+
+    #dots button {
+      min-width: 0;
+      width: 8px;
+      height: 8px;
+      padding: 0;
+      border-radius: 50%;
+      background: #d0d5dd;
+      color: transparent;
+    }
+
+    #dots button.is-current { background: #344054; }
 
     @media (max-width: 800px) {
       .pair { grid-template-columns: 1fr; }
-      .flow { flex-direction: column; align-items: stretch; }
-      .flow .arrow { transform: rotate(90deg); text-align: center; }
+      .flow { flex-direction: column; }
+      .flow .arrow { transform: rotate(90deg); justify-content: center; }
     }
   </style>
 </head>
 <body>
   <header class="top">
     <h1 id="doc-title">題</h1>
+    <p id="doc-lead" class="kicker"></p>
   </header>
   <nav class="tabs" id="tabs" aria-label="ステップ"></nav>
   <main>
     <div id="panels">
-      <!-- section.step を置く。各 step は .lead 1文と、.flow / .pair / .demo / callout のいずれか。 -->
+      <!-- section.step: data-title（タブ）と h2。中身は lane / flow / node / demo / rules。 -->
     </div>
   </main>
   <footer class="pager">
-    <button type="button" id="prev">前へ</button>
-    <span id="pos"></span>
-    <button type="button" id="next">次へ</button>
+    <button type="button" id="prev">← 前へ</button>
+    <span id="dots"></span>
+    <button type="button" id="next">次へ →</button>
   </footer>
   <script>
     (function () {
@@ -258,7 +377,7 @@
       var tabsEl = document.getElementById("tabs");
       var prev = document.getElementById("prev");
       var next = document.getElementById("next");
-      var pos = document.getElementById("pos");
+      var dotsEl = document.getElementById("dots");
       var steps = [].slice.call(panels.querySelectorAll("section.step"));
       var index = 0;
 
@@ -269,23 +388,37 @@
           var on = n === index;
           step.hidden = !on;
           var tab = tabsEl.children[n];
-          if (!tab) return;
-          tab.classList.toggle("is-current", on);
-          if (on) tab.classList.add("is-seen");
-          tab.setAttribute("aria-selected", on ? "true" : "false");
+          if (tab) {
+            tab.classList.toggle("is-current", on);
+            tab.setAttribute("aria-selected", on ? "true" : "false");
+          }
+          var dot = dotsEl.children[n];
+          if (dot) dot.classList.toggle("is-current", on);
         });
         prev.disabled = index === 0;
         next.disabled = index === steps.length - 1;
-        pos.textContent = index + 1 + " / " + steps.length;
       }
 
       steps.forEach(function (step, n) {
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.textContent = step.getAttribute("data-title") || String(n + 1);
-        btn.setAttribute("role", "tab");
-        btn.addEventListener("click", function () { show(n); });
-        tabsEl.appendChild(btn);
+        var title = step.getAttribute("data-title") || String(n + 1);
+        var label = n + 1 + ". " + title;
+        var tab = document.createElement("button");
+        tab.type = "button";
+        tab.textContent = label;
+        tab.setAttribute("role", "tab");
+        tab.addEventListener("click", function () { show(n); });
+        tabsEl.appendChild(tab);
+
+        var heading = step.querySelector("h2");
+        if (heading && !/^\d+\.\s/.test(heading.textContent.trim())) {
+          heading.textContent = n + 1 + ". " + heading.textContent.trim();
+        }
+
+        var dot = document.createElement("button");
+        dot.type = "button";
+        dot.setAttribute("aria-label", label);
+        dot.addEventListener("click", function () { show(n); });
+        dotsEl.appendChild(dot);
       });
 
       prev.addEventListener("click", function () { show(index - 1); });
