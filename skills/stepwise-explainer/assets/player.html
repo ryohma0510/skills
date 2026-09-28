@@ -95,6 +95,11 @@
 
     .lead { font-size: 1.05rem; }
 
+    .step > p:not(.lead) {
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
     .flow {
       display: flex;
       flex-wrap: wrap;
@@ -239,7 +244,7 @@
   <nav class="tabs" id="tabs" aria-label="ステップ"></nav>
   <main>
     <div id="panels">
-      <!-- section.step を必要な数だけ置く。data-title がタブの文言。最初の section は全体像。 -->
+      <!-- section.step を置く。各 step は .lead 1文と、.flow / .pair / .demo / callout のいずれか。 -->
     </div>
   </main>
   <footer class="pager">
