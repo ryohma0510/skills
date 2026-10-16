@@ -73,6 +73,7 @@ skills/
 
 | スキル名 | 概要 |
 | --- | --- |
+| [area-map](skills/area-map/SKILL.md) | 不慣れなコード領域を、ドメイン用語で一段上げたモジュール地図として、カテゴリを一つずつ説明する（名前を指定して呼び出す） |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
