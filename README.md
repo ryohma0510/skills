@@ -83,6 +83,12 @@ skills/
 | [orca-md-pr-comments](skills/orca-md-pr-comments/SKILL.md) | Orca の Markdown レビューコメントを GitHub PR の inline comment として投稿する（明示的な投稿指示時のみ。行特定は orca-md-resolve） |
 | [orca-md-resolve](skills/orca-md-resolve/SKILL.md) | Orca の Markdown レビューコメントを excerpt から作業ツリー上の正しい行に特定する（投稿はしない） |
 | [plain-vocab](skills/plain-vocab/SKILL.md) | 文章の語彙を平易にする。硬語・場違いな専門語・分かりにくい外来語・スタイルのための日英混在（ルー大柴調）を直す |
+| [ponytail](skills/ponytail/SKILL.md) | 怠けたシニア開発者モード（YAGNI・最小変更）。upstream: [DietrichGebert/ponytail](https://github.com/DietrichGebert/ponytail)（MIT） |
+| [ponytail-audit](skills/ponytail-audit/SKILL.md) | リポジトリ全体の品質監査（バグ・安全・負荷・テスト・速度・削ぎ）。一回限りのレポート |
+| [ponytail-debt](skills/ponytail-debt/SKILL.md) | `shortcut:` コメントを負債台帳として一覧 |
+| [ponytail-gain](skills/ponytail-gain/SKILL.md) | ベンチマークに基づく ponytail の削減効果スコアボード |
+| [ponytail-help](skills/ponytail-help/SKILL.md) | ponytail のレベル・スキル・コマンドのクイックリファレンス |
+| [ponytail-review](skills/ponytail-review/SKILL.md) | 変更（diff・PR 等）の品質レビュー |
 | [pr-create](skills/pr-create/SKILL.md) | 変更を push し、base ブランチの推定のうえ draft PR を作成する。タイトルと description は `pr-description` に任せる |
 | [pr-description](skills/pr-description/SKILL.md) | diff から日本語のタイトルと description を生成し、既存 PR があれば差し替え、無ければ本文ファイルとして返す |
 | [reply-review](skills/reply-review/SKILL.md) | PR のレビューコメントに返信する。未対応スレッドの収集・返信文の作成・投稿まで行う（コードは直さない） |
