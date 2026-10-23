@@ -75,6 +75,7 @@ skills/
 | --- | --- |
 | [code-comments](skills/code-comments/SKILL.md) | コメント・ドキュメンテーションコメントに何を書き何を書かないかの原則。アンチパターンの検出とラベル付けも行う |
 | [copy-skill](skills/copy-skill/SKILL.md) | GitHub上に公開されたスキルフォルダを取得し、外国語なら内容を変えずに日本語へ翻訳して取り込む |
+| [technical-writing](skills/technical-writing/SKILL.md) | 設計書・仕様・手順など技術文書の構成と文章（テクニカルライティング）。仕上げは `sanitize-doc` に委譲 |
 | [drill-down](skills/drill-down/SKILL.md) | 不慣れなコード領域を、ドメイン用語で一段上げたモジュール地図からカテゴリ単位で drill-down する（名前を指定して呼び出す） |
 | [eli5](skills/eli5/SKILL.md) | 対象を特定の聞き手の理解度に合わせて説明する。ELI5、「〜に説明して」 |
 | [grilling](skills/grilling/SKILL.md) | ユーザーの計画・決定・アイデアを容赦なく問い詰め、共通理解に達するまで一問一答で深掘りする |
@@ -95,6 +96,45 @@ skills/
 | [test-design](skills/test-design/SKILL.md) | 良いテストの設計。seam でのテスト、DAMP、should/when 命名と Given-When-Then、アンチパターン、モックの境界。規約違反を検出する lint スクリプトを同梱 |
 | [trim-ai-smell](skills/trim-ai-smell/SKILL.md) | Markdown から装飾文言(煽り・脅し、唯一の記述への強調、意味を変えない強度副詞など)を削る。新規執筆時にも常に適用する |
 | [trim-session-context](skills/trim-session-context/SKILL.md) | セッション中に作った成果物から会話の名残(production residue)を削り、単独で読める完成品に仕上げ直す |
+
+## スキル間の依存関係
+
+各 `SKILL.md` が他スキルを **発動** または **参照** している関係。図に無いスキルは、他スキルから到達しない（単独で呼ぶ）もの。
+
+- **実線** — Skill ツールで発動（`sanitize-doc` 内は上から順に発動）
+- **点線** — 参照（読む・判断基準として使う。発動はしない）
+
+```mermaid
+flowchart TB
+  subgraph flow_impl["実装〜PR"]
+    implement --> tdd
+    implement --> code_comments["code-comments"]
+    implement --> pr_create["pr-create"]
+    implement --> review_loop["review-loop"]
+    tdd -.-> test_design["test-design"]
+    tdd -.-> review
+    review_loop --> review
+    review_loop --> pr_description["pr-description"]
+    pr_create --> pr_description
+  end
+
+  subgraph flow_prose["技術文書・仕上げ"]
+    pr_description -.-> technical_writing["technical-writing"]
+    pr_description --> sanitize_doc["sanitize-doc"]
+    technical_writing --> sanitize_doc
+    code_comments -.-> sanitize_doc
+    reply_review["reply-review"] --> sanitize_doc
+    sanitize_doc --> plain_vocab["plain-vocab"]
+    sanitize_doc --> trim_ai_smell["trim-ai-smell"]
+    sanitize_doc --> trim_session["trim-session-context"]
+  end
+
+  subgraph flow_orca["Orca"]
+    orca_comments["orca-md-pr-comments"] --> orca_resolve["orca-md-resolve"]
+  end
+```
+
+図に載せていないスキル: `copy-skill`, `drill-down`, `eli5`, `grilling`, `handoff`, `skill-design-principles`, `stepwise-explainer`（いずれも他スキルから発動・参照されない）。
 
 ## 開発フロー
 
