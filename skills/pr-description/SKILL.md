@@ -73,7 +73,7 @@ find "$(git rev-parse --show-toplevel)" -maxdepth 3 -type f \
 
 ## 6. Description の生成
 
-`technical-writing` スキルを読み、構成・文章の原則に従って書く。`eli5` は発動しない。
+`technical-writing` スキルを読み、構成・文章の原則に従って書く。
 
 diff を分析し、日本語の description を書く。設計判断や背景の「なぜ」を軸にし、コードの羅列ではなく意図が伝わる記述にする。テンプレートと各セクションの書き方は [`references/description.md`](references/description.md) を読んでから書く。リポジトリのテンプレートを選んだ場合は、そちらの見出しを骨格にし、ガイドラインはテンプレートの指示がない部分にだけ適用する。
 
